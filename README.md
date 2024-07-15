@@ -1,7 +1,8 @@
 ## Truck Backer Upper
 
-Simulation before training:
+### Simulation Before Training
 ![Truck Backer Upper GIF](videos/truck-backer-upper-before.gif)
 
-Simulation after training:
+
+### Simulation After Training:
 ![Truck Backer Upper GIF](videos/truck-backer-upper-after.gif)
