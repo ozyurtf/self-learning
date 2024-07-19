@@ -11,9 +11,11 @@ One note is that, the degree between the head of the truck and trailer should no
 
 Also, even if the truck learns how to back up from a specific location, it has to generalize this knowledge across all kinds of different locations and positions. 
 
+And similarly, there are many different routes to follow from one location to back up the truck. The should be to find the shortest possible path. 
+
 Other big problem was that there wasn't any data that I could use to make the truck aware of the consequences of its actions. 
 
-So these were the some of the main challenges that needed to be solved in the project. 
+So, these were the some of the main challenges that needed to be solved in the project. 
 
 ####  Simulation Before Training
 ![Truck Backer Upper GIF](videos/truck-backer-upper-before.gif)
@@ -22,8 +24,13 @@ So these were the some of the main challenges that needed to be solved in the pr
 
 If we look at human or any other animals' perspective, we can be able to do vast majority of things such as going from one location to another, sitting into somewhere, moving our arms and hands to eat food because the internal representation of the world in our brains is aware of the consqeuences of its actions. And we learned it by ourselves just performing the actions and seeing the results. 
 
-I prepared a similar system for this project by creating a list of random stering angles, and a feed-forward neural network model, and teaching this model the effects of moving backwards with these steering angles. At the end of the training process, this model was predicting its new position after using all kinds of different steering angles very accurately. In other words, it was aware of the consequences of its actions before taking those actions. 
+I prepared a similar system for this project by creating a list of random stering angles, and a feed-forward neural network model, and teaching this model the effects of moving backwards with these steering angles. This model is called emulator. At the end of the training process, it was predicting the new position of the truck with all kinds of different steering angles very accurately. In other words, it was aware of the consequences of the truck's actions before those actions are taken. 
 
+After preparing the model that is aware of the consequences of the actions of the truck in various different locations, the next step was to solve the other problems. 
+
+In the next step, I prepared another model that is similar to recurrent neural network. When the truck is initialized to a random position and makes a couple of steps, the next time it chooses the steering angle, it takes all the actions that are made until that time when selecting the steering angle. 
+
+To make things easier for the model, I started the training process from the positions that are very close to the target position. Then
 
 ### Results
 
