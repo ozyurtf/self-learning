@@ -30,7 +30,7 @@ After preparing the model that is aware of the consequences of the actions of th
 
 In the next step, I prepared another model that is similar to recurrent neural network. When the truck is initialized to a random position and makes a couple of steps, the next time it chooses the steering angle, it takes all the actions that are made until that time when selecting the steering angle. 
 
-To make things easier for the model, I started the training process from the positions that are very close to the target position. Then
+To make things easier for the model, I started the training process from the positions that are very close to the target position. 
 
 ### Results
 
