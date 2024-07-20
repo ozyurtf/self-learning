@@ -29,9 +29,30 @@ For this project, I prepared a similar system by creating a list of random steer
 
 After preparing the model that understands the consequences of the truck's actions in different locations, the next step was to solve the remaining problems.
 
-In the next step, I developed another model similar to a recurrent neural network. This model is called controller because it controls the next position of the truck. When the truck is initialized to a random position and makes steps, the next time it chooses a new steering angle, the model considers all previous actions that were taken when selecting the new steering angle. 
+In the next step, I developed another model similar to a recurrent neural network. This model is called controller because it controls the next position of the truck. 
 
-Just like instructors start with simple concepts when teaching a new topic to ensure students grasp the fundamentals before moving to more complex ideas, I started the training process by initializing the truck in positions very close to the target location. The goal was to teach the truck how to back up from very short distances and gradually build on this knowledge.
+Just like instructors start with simple concepts when teaching a new topic to ensure students grasp the fundamentals before moving to more complex ideas, I started the training process by initializing the truck in positions very close to the target location. The goal was to teach the truck how to back up from very short distances and gradually build on top of this knowledge.
+
+In addition, I prepared a custom loss function since the traditional loss functions were not solving some of the problems that I mentioned in the first part. This loss function can be defined like the one below.
+
+<div align="center">
+
+$L(x, y, \theta_1, \theta_0, \text{step}) = -\log\left(\frac{1}{P_1 \cdot P_2}\right)$
+
+$P_1 = x^+ + |y| + M_{\theta_1}$
+
+$P_2 = (x^+)^2 + y^2 + M_{\theta_1}^2 + A^2 + 0.01 \cdot \text{step}$
+
+$M_{\theta_1} = \min(|\theta_1|, ||\theta_1| - 2\pi|)$
+
+$A = \max\left(0, \frac{\text{deg}(|\theta_1 - \theta_0|) - 30}{30}\right)$
+
+$x^+ = \max(0, x)$
+
+</div>
+
+
+When the truck is initialized to a random position and makes steps, the next time it chooses a new steering angle, the model considers all previous actions that were taken until that point when selecting the new steering angle. 
 
 ### Results
 
