@@ -1,36 +1,35 @@
 ## Truck Backer Upper
 
 ### Situation and Task
-In this project, there was a simulation of a truck and an environment. It could only be able to move backwards. It's moving speed was fixed. Therefore, the only variable was the steering angle. Every time we specify the steering angle, the truck was moving one step back based on this stering angle. 
 
-The truck was initialized to different positions randomly in the environment. And the goal was to back up the truck to the target position properly no matter where it is initialized. But there were some challenges. 
+In this project, there is a simulation of a truck and an environment. The truck can only move backward, and its moving speed is fixed. Therefore, the only variable that affects the position of the truck is the steering angle. Every time we specify a steering angle, the truck moves one step backward based on this angle.
 
-For instance, let's say that the truck is initialized to a position randomly. In that position, we can basically use infinite number of steering angles between 0 and 360. And the new position of the truck will be different with each one of these infinite number of steering angles. After we pick one of them and the truck move backwards according to this angle, it will have infinite number of routes that it can follow to reach the target position again. So each step basically creates infinitely large solution space. This was one of the first problems. 
+The truck is initialized to different positions in the environment randomly, and the goal is to back up the truck to the target position properly, no matter where it is initialized. However, there are some challenges.
 
-One note is that, the degree between the head of the truck and trailer should not be more than 90 degree at anytime. Otherwise this would be against the law of physics. So another issue was to make sure that this condition is met from the beginning and end of the solution. 
+For instance, let's say the truck is initialized to a random position. In that position, we can use an infinite number of steering angles between 0 and 360 degrees, and the new position of the truck will be different with each one of these angles. After we pick a steering angle and the truck moves backward according to it, there will again be an infinite number of routes it can follow to reach the target position. Each step essentially creates an infinitely large solution space, which is one of the other challenges that need to be resolved.
 
-Also, even if the truck learns how to back up from a specific location, it has to generalize this knowledge across all kinds of different locations and positions. 
+In addition, the angle between the head of the truck and the trailer should not exceed 90 degrees at any time; otherwise, this would violate the laws of physics. Thus, another issue is to ensure that the angle between the head of the truck and the trailer is always less than 90 degrees from the first position to the last position of the truck.
 
-And similarly, there are many different routes to follow from one location to back up the truck. The should be to find the shortest possible path. 
+Furthermore, even if the truck learns how to back up from a specific location, it has to generalize this knowledge across all kinds of different locations and positions. Also, there are many different routes to follow to back up the truck from one location to the target location. The goal should be to find the shortest possible path.
 
-Other big problem was that there wasn't any data that I could use to make the truck aware of the consequences of its actions. 
+Another major problem is that there is no data available to make the truck aware of the consequences of its actions. That's why the truck has to be able to figure out many things on its own.
 
-So, these were the some of the main challenges that needed to be solved in the project. 
+These are the main challenges that needed to be solved in the project.
 
 ####  Simulation Before Training
 ![Truck Backer Upper GIF](videos/truck-backer-upper-before.gif)
 
 ### Action
 
-If we look at human or any other animals' perspective, we can be able to do vast majority of things such as going from one location to another, sitting into somewhere, moving our arms and hands to eat food because the internal representation of the world in our brains is aware of the consqeuences of its actions. And we learned it by ourselves just performing the actions and seeing the results. 
+As humans, we can do a vast majority of things such as walking from one location to another, sitting down, or moving our arms and hands in a certain way to eat because the internal representation of the world in our brains is aware of the consequences of these actions. We learn these skills by performing actions and observing the results.
 
-I prepared a similar system for this project by creating a list of random stering angles, and a feed-forward neural network model, and teaching this model the effects of moving backwards with these steering angles. This model is called emulator. At the end of the training process, it was predicting the new position of the truck with all kinds of different steering angles very accurately. In other words, it was aware of the consequences of the truck's actions before those actions are taken. 
+For this project, I prepared a similar system by creating a list of random steering angles, developing a feed-forward neural network model, and teaching this model the effects of moving backward with these steering angles. This model is called the emulator. At the end of the training process, it could accurately predict the new position of the truck for various steering angles. In other words, it became aware of the consequences of the truck's actions before those actions were taken.
 
-After preparing the model that is aware of the consequences of the actions of the truck in various different locations, the next step was to solve the other problems. 
+After preparing the model that understands the consequences of the truck's actions in different locations, the next step was to solve the remaining problems.
 
-In the next step, I prepared another model that is similar to recurrent neural network. When the truck is initialized to a random position and makes a couple of steps, the next time it chooses the steering angle, it takes all the actions that are made until that time when selecting the steering angle. 
+In the next step, I developed another model similar to a recurrent neural network. This model is called controller because it controls the next position of the truck. When the truck is initialized to a random position and makes steps, the next time it chooses a new steering angle, the model considers all previous actions that were taken when selecting the new steering angle. 
 
-To make things easier for the model, I started the training process from the positions that are very close to the target position. 
+Just like instructors start with simple concepts when teaching a new topic to ensure students grasp the fundamentals before moving to more complex ideas, I started the training process by initializing the truck in positions very close to the target location. The goal was to teach the truck how to back up from very short distances and gradually build on this knowledge.
 
 ### Results
 
