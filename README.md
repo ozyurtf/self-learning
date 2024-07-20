@@ -58,3 +58,6 @@ When the truck is initialized to a random position and makes steps, the next tim
 
 #### Simulation After Training
 ![Truck Backer Upper GIF](videos/truck-backer-upper-after.gif)
+
+
+### References
