@@ -59,13 +59,11 @@ Additionally, we mentioned that there are many different ways to back up the tru
 
 We also mentioned that the angle between the head of the truck and the trailer should not exceed 90 degrees. To ensure that the truck does not have an angle greater than 90 degrees between its head and trailer, I penalized the difference between the head of the truck and the trailer once this angle exceeds 30 degrees.
 
-All of these factors are considered in the $P_2$ part. 
+All of these factors are considered in the $P_2$ part which was initially my first loss function. When I was using only $P_2$ as a loss function, even when the model was finding the shortest path and the truck was backed up to the correct position, the loss value was still relatively high due to the number of steps taken (especially when the truck is initialized in a location that is far from the target location. Because it had to make relatively high number of steps even if it follows the shortest path). To solve this issue, I multiplied $P_2$ by $P_1$. This means that if the truck is at the correct position $(x = 0, y = 0, and \theta_1 = 0)$, the loss value will be 0. Because the sum of $(x, y, \theta_1)$, which will be 0 in the target location, is multiplied with $P_2$. 
 
-$P_2$ was my first loss function. However, even when the model was finding the shortest path and the truck was backed up to the correct position, the loss value was still relatively high due to the number of steps taken. To solve this issue, I multiplied $P_2$ by $P_1$. This means that if the truck is at the correct position (x = 0, y = 0, and $\theta_1$ = 0), the loss value will be 0 because the sum of $(x, y, \theta_1)$, which will be 0 in the target location, is multiplied with $P_2$." 
+Finally, to scale the loss values and prevent them from being very far apart, I compute $-\log\left(\frac{1}{P_1 \cdot P_2}\right)$. This will help us obtain a more uniform loss values.
 
-Finally, to scale the loss values and prevent them from being very far apart, I calculate $-\log\left(\frac{1}{P_1 \cdot P_2}\right)$. This will help us obtain a more uniform loss values.
-
-After prearing the loss function, the next step is to train the controller that will decide the list of steering angles the truck should use step by step to back up to the right location. 
+After prearing the loss function, the next step is to train the controller that will decide the list of steering angles the truck should use in each step to back up to the right location. 
 
 When the truck is initialized to a random position and makes steps, the next time it chooses a new steering angle, the model considers all previous actions that were taken until that point when selecting the new steering angle. 
 
