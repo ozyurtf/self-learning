@@ -51,10 +51,21 @@ $x^+ = \max(0, x)$
 
 </div>
 
-In here, $x$ and $y$ represents the coordinates of the trailer of the truck. The target position to which the truck should be backed up is (0,0). Therefore the square distance between $(x,y)$ and $(0,0)$ are used in the loss function. $\theta_1$ represents the angle of the trailer. In it's last location, we want the truck to be in horizontal position. In other words, the ideal value of $\theta_1$ is 0 or 360 degree or -360 degree which are basically the same things. Note that if $\theta_1$ is 280 degree or 80 degree in its last location, they are the same things. Therefore we take the square of the minimum of $\theta_1$ and $\theta_1 - 2\pi$, take the square of this and use that in the loss function. In addition, we mentioned that there is a large number of different ways to back up the truck from a specific location. But we want to find the shortest path. That's why $0.01*step$ is added to the loss function to penalize the number of steps taken to back up the truck. Also, we have mentioned that the degree between the head of the truck and the trailer should not be more than 90 degre. To find a path that will not make the truck to have more than 90 degree between its head and trailer, I penalized the difference between the head of the truck and trailer after this degree becomes larger than 30 degree. 
+In the loss function above, $x$ and $y$ represent the coordinates of the trailer of the truck. The target position to which the truck should be backed up is (0,0). Therefore, the squared distance between $(x,y)$ and $(0,0)$ is used in the loss function. $\theta_1$ represents the angle of the trailer while $\theta_0$ represents the angle of the head of the truck. In its last location, we want the trailer to be in a horizontal position. In other words, the ideal value of $\theta_1$ is 0, 360 degrees, or -360 degrees, which are essentially the same. 
 
-All of these factors are taken into account in $P_2$ part. This was my first loss function. However, even if the model was finding the shortest path and the truck is backed up to the right position properly, the loss value was still relatively large due to the number of steps taken. To eliminate this problem, I multiplied the $P_2$ with $P_1$. This means that if the truck is at the right position (x = 0, y = 0 and $\theta_1$ = 0), the loss value will become 0. 
+Note that if $\theta_1$ is 280 degrees or 80 degrees in its last location, for example, they are equivalent. Similarly, if $\theta_1$ is 20 degrees or 340 degrees in its last location, they are equivalent as well. Therefore, I take the square of the minimum of $\theta_1$ and $\theta_1 - 2\pi$, square this value, and use it in the loss function. 
 
+Additionally, we mentioned that there are many different ways to back up the truck from a specific location. However, we want to find the shortest path. That's why I added $0.01 \times \text{step}$ to the loss function to penalize the number of steps taken to back up the truck. 
+
+We also mentioned that the angle between the head of the truck and the trailer should not exceed 90 degrees. To ensure that the truck does not have an angle greater than 90 degrees between its head and trailer, I penalized the difference between the head of the truck and the trailer once this angle exceeds 30 degrees.
+
+All of these factors are considered in the $P_2$ part. 
+
+$P_2$ was my first loss function. However, even when the model was finding the shortest path and the truck was backed up to the correct position, the loss value was still relatively high due to the number of steps taken. To address this issue, I multiplied $P_2$ by $P_1$. This means that if the truck is at the correct position (x = 0, y = 0, and $\theta_1$ = 0), the loss value will be 0 because the sum of $(x, y, $\theta_1)$, which will be 0 in the target location, is multiplied with $P_2$." 
+
+Finally, to scale the loss values and prevent them from being very far apart, I calculate the negative log of $-1/\text{frac}(P1 \times P2)$. This will help us obtain a more uniform loss values.
+
+After prearing the loss function, the next step is to train the controller that will decide the list of steering angles the truck should use step by step to back up to the right location. 
 
 When the truck is initialized to a random position and makes steps, the next time it chooses a new steering angle, the model considers all previous actions that were taken until that point when selecting the new steering angle. 
 
