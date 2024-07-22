@@ -61,7 +61,7 @@ We also mentioned that the angle between the head of the truck and the trailer s
 
 All of these factors are considered in the $P_2$ part. 
 
-$P_2$ was my first loss function. However, even when the model was finding the shortest path and the truck was backed up to the correct position, the loss value was still relatively high due to the number of steps taken. To address this issue, I multiplied $P_2$ by $P_1$. This means that if the truck is at the correct position (x = 0, y = 0, and $\theta_1$ = 0), the loss value will be 0 because the sum of $(x, y, $\theta_1)$, which will be 0 in the target location, is multiplied with $P_2$." 
+$P_2$ was my first loss function. However, even when the model was finding the shortest path and the truck was backed up to the correct position, the loss value was still relatively high due to the number of steps taken. To solve this issue, I multiplied $P_2$ by $P_1$. This means that if the truck is at the correct position (x = 0, y = 0, and $\theta_1$ = 0), the loss value will be 0 because the sum of $(x, y, $\theta_1)$, which will be 0 in the target location, is multiplied with $P_2$." 
 
 Finally, to scale the loss values and prevent them from being very far apart, I calculate $-\log\left(\frac{1}{P_1 \cdot P_2}\right)$. This will help us obtain a more uniform loss values.
 
