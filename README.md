@@ -13,3 +13,8 @@
   - [Emulator Training](https://api.wandb.ai/links/furkanozyurt21/ciflisl6)
   - [Controller Training](https://api.wandb.ai/links/furkanozyurt21/hgxga7y0)
 - I visualized the computational graph for the controller. The visualization of computatinal graph can be seen in `computational-graphs` folder and the visualization of the training process can be found in `figures` folder.
+
+## Notes
+- The truck is still not able to back up when it is initialized in horizontal and reverse positions unless we use the configurations below:
+  - `self.θ0 = min(self.θ0 - self.θ1, deg2rad(80)) + self.θ1`
+  - `self.θ0 = max(self.θ0 - self.θ1, deg2rad(-80)) + self.θ1`
