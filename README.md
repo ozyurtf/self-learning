@@ -11,4 +11,4 @@
   - [Emulator Training](https://api.wandb.ai/links/furkanozyurt21/ciflisl6)
   - [Controller Training](https://api.wandb.ai/links/furkanozyurt21/hgxga7y0)
   
-- I visualized the computational graph for both the controller and training process. The visualization of computatinal graph for the controller can be seen in computational-graphs folder and the visualization of the training process can be found in figures folder.
+- I visualized the computational graph for the controller. The visualization of computatinal graph can be seen in `computational-graphs` folder and the visualization of the training process can be found in `figures` folder.
