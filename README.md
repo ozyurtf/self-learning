@@ -4,7 +4,7 @@
 
 ## After Training
 
-![Simulation After Training](videos/simulation.gif)
+<img src="videos/simulation.gif" width="400" height="300" alt="Simulation After Training">
 
 
 ## Training Process 
