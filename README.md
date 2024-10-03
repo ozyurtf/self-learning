@@ -1,5 +1,9 @@
 # Truck Backer Upper 
 
+## Training Process 
+
+![Training Process](figures/training-process.png)
+
 ## Updates 
 
 - There is no manual process in the notebook anymore.
