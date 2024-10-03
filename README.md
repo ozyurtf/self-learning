@@ -4,7 +4,7 @@
 
 ## After Training
 
-![Simulation After Training](video/simulation.gif)
+![Simulation After Training](videos/simulation.gif)
 
 
 ## Training Process 
