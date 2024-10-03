@@ -4,7 +4,7 @@
 
 ## After Training
 
-<img src="videos/simulation.gif" width="400" height="300" alt="Simulation After Training">
+<img src="videos/simulation.gif" width="400" height="400" alt="Simulation After Training">
 
 
 ## Training Process 
