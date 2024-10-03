@@ -4,6 +4,9 @@
 
 ## After Training
 
+![Simulation After Training](video/simulation.gif)
+
+
 ## Training Process 
 
 ![Training Process](figures/training-process.png)
