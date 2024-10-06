@@ -2,9 +2,11 @@
 
 ## Before Training 
 
+<img src="videos/simulation-before-training.gif" width="75%" alt="Simulation After Training">
+
 ## After Training
 
-<img src="videos/simulation.gif" width="75%" alt="Simulation After Training">
+<img src="videos/simulation-after-training.gif" width="75%" alt="Simulation After Training">
 
 ## Training Process 
 
