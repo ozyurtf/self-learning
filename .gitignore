@@ -3,4 +3,6 @@
 /.ipynb_checkpoints
 .DS_Store
 venv
+truck-backer-upper-test.ipynb
+truck-backer-upper-batch.ipynb
 
