@@ -14,11 +14,11 @@
 
 ## Trajectories
 
-![Trajectory 1](trajectories/trajectory-1.png)
+![Trajectory 1](trajectories/lesson-11/trajectory-1.png)
 
-![Trajectory 4](trajectories/trajectory-4.png)
+![Trajectory 4](trajectories/lesson-11/trajectory-4.png)
 
-![Trajectory 5](trajectories/trajectory-5.png)
+![Trajectory 5](trajectories/lesson-11/trajectory-5.png)
 
 ## Training Process 
 
