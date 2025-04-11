@@ -78,6 +78,9 @@ class Truck:
             self.ax.axis([b[0] - 1, b[1], b[2], b[3]])
             self.ax.set_xticks([]); self.ax.set_yticks([])
             self.ax.axhline(); self.ax.axvline()
+            
+            plt.ion()  
+            plt.pause(0.001) 
         
         self.trailer_trajectory = []
         self.cab_trajectory = []
@@ -181,6 +184,7 @@ class Truck:
         self._draw_car()
         self._draw_trailer()
         self.f.canvas.draw()
+        plt.pause(0.001)            
             
     def clear(self):
         for p in self.patches:
@@ -316,9 +320,10 @@ class Truck:
             
         fig = plt.gcf() 
         fig.patch.set_facecolor('white')      
-        plt.savefig(f'{directory}/trajectory-{test_seed}.png', dpi=300, facecolor='white', bbox_inches='tight')        
+        plt.savefig(f'{directory}/trajectory-{test_seed}.png', dpi=300, facecolor='white', bbox_inches='tight')      
         
-        plt.show()
+        plt.show(block=False)  
+        
     def update_state(self, state): 
         self.ϕ, self.x, self.y, self.θ0, self.θ1 = state.tolist()
         
@@ -366,7 +371,6 @@ def criterion_controller(ϕ_state):
     x_tr_relu = nn.functional.relu(x_tr)
     min_θ1 = torch.min(torch.abs(θ1), torch.abs(torch.abs(θ1) - deg2rad(360)))
     return (x_tr_relu**2 + y_tr**2 + min_θ1**2 + angle_diff_relu**2) / 4
-
 
 def train_emulator(emulator, 
                    episodes, 
@@ -451,7 +455,6 @@ def train_emulator(emulator,
         wandb.finish()
     
     return emulator
-
 
 def train_controller(lesson, 
                      controller, 
@@ -543,7 +546,6 @@ if train_eval == "train":
                                     epochs = 3000,
                                     max_steps = 400)
         print()
-
 
 final_lesson = 11
 test_controller = torch.load('models/controllers/controller_lesson_{}.pth'.format(final_lesson), weights_only = False)
