@@ -16,10 +16,10 @@ import os
 import shutil
 
 num_lessons = 10
+train_eval = "eval"
 current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
 π = pi
 style.use(['dark_background', 'bmh'])
-
 
 def create_lesson_configs(num_lessons):
     configs = {}
@@ -267,20 +267,29 @@ class Truck:
                     color=cab_color, marker='.', s=15, alpha=0.6)
         
         plt.scatter(x_trailer_trajectory[0], y_trailer_trajectory[0], 
-                   marker='x', color=trailer_color, s=60, zorder=10, 
+                   marker='o', color=trailer_color, s=60, zorder=10, 
                    label='Trailer Start Position')
         
         plt.scatter(x_cab_trajectory[0], y_cab_trajectory[0], 
-                   marker='x', color=cab_color, s=60, zorder=10,
+                   marker='o', color=cab_color, s=60, zorder=10,
                    label='Cab Start Position')
                 
         plt.scatter(x_trailer_trajectory[-1], y_trailer_trajectory[-1], 
-                   marker='o', color=trailer_color, s=60, zorder=10,
+                   marker='x', color=trailer_color, s=60, zorder=10,
                    label='Trailer End Position')
         
         plt.scatter(x_cab_trajectory[-1], y_cab_trajectory[-1], 
-                   marker='o', color=cab_color, s=60, zorder=10,
+                   marker='x', color=cab_color, s=60, zorder=10,
                    label='Cab End Position')
+        
+        plt.plot([x_trailer_trajectory[0], x_cab_trajectory[0]], 
+                [y_trailer_trajectory[0], y_cab_trajectory[0]], 
+                'k--', linewidth=1.5) 
+
+        plt.plot([x_trailer_trajectory[-1], x_cab_trajectory[-1]], 
+                [y_trailer_trajectory[-1], y_cab_trajectory[-1]], 
+                'k--', linewidth=1.5)
+        
         
         plt.xlim(self.box[0], self.box[1])
         plt.ylim(self.box[2], self.box[3])
@@ -298,14 +307,16 @@ class Truck:
         plt.tick_params(axis='both', which='major', labelsize=8, pad=4, colors='#555555')
         
         plt.tight_layout()
-        # Make space for the legend
         plt.subplots_adjust(right=0.78)
         
         directory = f'trajectories/lesson-{self.lesson}'
         
         if not os.path.exists(directory):
             os.makedirs(directory)  
-        plt.savefig(f'{directory}/trajectory-{test_seed}.png', dpi=300, bbox_inches='tight')        
+            
+        fig = plt.gcf() 
+        fig.patch.set_facecolor('white')      
+        plt.savefig(f'{directory}/trajectory-{test_seed}.png', dpi=300, facecolor='white', bbox_inches='tight')        
         
         plt.show()
     def update_state(self, state): 
@@ -317,7 +328,6 @@ def generate_random_deg(mean, std, lower_bound, upper_bound):
     samples = stats.truncnorm.rvs(a, b, loc=mean, scale=std, size=1)
     sample = samples[0]    
     return sample
-
 
 def initialize_emulator(): 
     emulator = nn.Sequential(
@@ -344,7 +354,6 @@ def initialize_controller():
     torch.save(controller, 'models/controllers/controller_lesson_0.pth')
     return controller
 
-
 criterion_emulator = nn.MSELoss()  
 
 def criterion_controller(ϕ_state):
@@ -357,6 +366,7 @@ def criterion_controller(ϕ_state):
     x_tr_relu = nn.functional.relu(x_tr)
     min_θ1 = torch.min(torch.abs(θ1), torch.abs(torch.abs(θ1) - deg2rad(360)))
     return (x_tr_relu**2 + y_tr**2 + min_θ1**2 + angle_diff_relu**2) / 4
+
 
 def train_emulator(emulator, 
                    episodes, 
@@ -442,6 +452,7 @@ def train_emulator(emulator,
     
     return emulator
 
+
 def train_controller(lesson, 
                      controller, 
                      epochs, 
@@ -501,38 +512,39 @@ def train_controller(lesson,
             
     return controller
 
-emulators_dir = 'models/emulators'
-if os.path.exists(emulators_dir):
-    shutil.rmtree(emulators_dir)
-os.makedirs(emulators_dir)
-
-emulator = initialize_emulator()
-
-for lesson in range(1, num_lessons + 2):
-    print(" Lesson {}:".format(lesson))
-    emulator = train_emulator(lesson = lesson,
-                              emulator = emulator,
-                              episodes = 10_000,
-                              learning_rate = 0.00001)
-    print()
+if train_eval == "train":
+    emulators_dir = 'models/emulators'
+    if os.path.exists(emulators_dir):
+        shutil.rmtree(emulators_dir)
+    os.makedirs(emulators_dir)
     
-controllers_dir = 'models/controllers'
-if os.path.exists(controllers_dir):
-    shutil.rmtree(controllers_dir)
-os.makedirs(controllers_dir)
+    emulator = initialize_emulator()
 
-
-controller = initialize_controller() #controller_0
-
-for lesson in range(1, num_lessons + 2): 
-    print(" Lesson {}:".format(lesson))
-    controller = train_controller(lesson = lesson, 
-                                  controller = controller, # controller_0
-                                  epochs = 3000,
-                                  max_steps = 400)
-    print()
+    for lesson in range(1, num_lessons + 2):
+        print(" Lesson {}:".format(lesson))
+        emulator = train_emulator(lesson = lesson,
+                                emulator = emulator,
+                                episodes = 10_000,
+                                learning_rate = 0.00001)
+        print()
+        
+    controllers_dir = 'models/controllers'
     
-    
+    if os.path.exists(controllers_dir):
+        shutil.rmtree(controllers_dir)
+    os.makedirs(controllers_dir)
+
+    controller = initialize_controller()
+
+    for lesson in range(1, num_lessons + 2): 
+        print(" Lesson {}:".format(lesson))
+        controller = train_controller(lesson = lesson, 
+                                    controller = controller,
+                                    epochs = 3000,
+                                    max_steps = 400)
+        print()
+
+
 final_lesson = 11
 test_controller = torch.load('models/controllers/controller_lesson_{}.pth'.format(final_lesson), weights_only = False)
 truck = Truck(lesson = final_lesson, display = True)
@@ -557,6 +569,3 @@ for test_seed in range(1,10):
         print(f"Trailer x: {trailer_x:.3f}, Trailer y: {trailer_y:.3f}")
         print()
 print(f"Number of Jackknifes: {num_jackknifes}")
-
-
-
