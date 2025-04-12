@@ -1,10 +1,8 @@
 from matplotlib.pylab import *
 from matplotlib.patches import Rectangle
-from matplotlib.collections import PatchCollection
 from matplotlib.lines import Line2D
 import torch
 import torch.nn as nn
-from torch.optim import SGD
 from torchviz import make_dot
 from tqdm import tqdm
 from datetime import datetime
@@ -14,9 +12,53 @@ import scipy.stats as stats
 import matplotlib.style as style
 import os
 import shutil
+import argparse
 
-num_lessons = 10
-train_eval = "eval"
+parser = argparse.ArgumentParser(description="A training/testing script of Truck Backer Upper")
+
+parser.add_argument("--train_eval", type=str, default = "eval", required=False, help="Choose if you want to train a model from scratch or evaluate the existing models.")
+
+parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-120, 120), required=False, help="")
+
+parser.add_argument("--final_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False, help="")
+
+parser.add_argument("--final_x_cab_range", type=int, nargs=2, default = (10, 35), required=False, help="")
+
+parser.add_argument("--final_y_cab_range", type=int, nargs=2, default = (-7, 7), required=False, help="")
+
+parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False, help="")
+
+parser.add_argument("--env_y_range", type=int, nargs=2, default = (-10, 10), required=False, help="")
+
+parser.add_argument("--draw_trajectory", type=bool, default = True, required=False, help="")
+
+parser.add_argument("--num_lessons", type=int, default = 10, required=False, help="")
+
+parser.add_argument("--truck_speed", type=float, default = -0.1, required=False, help="")
+
+parser.add_argument("--wandb_log", type=bool, default = False, required=False, help="")
+
+parser.add_argument("--wandb_username", type=str, default = "", required=False, help="")
+
+parser.add_argument("--save_computational_graph", type=bool, default = False, required=False, help="")
+
+args = parser.parse_args()
+
+train_eval = args.train_eval
+num_lessons = args.num_lessons
+final_cab_angle_range = args.final_cab_angle_range
+final_cab_trailer_angle_diff_range = args.final_cab_trailer_angle_diff_range
+final_x_cab_range = args.final_x_cab_range
+final_y_cab_range = args.final_y_cab_range
+env_x_range = args.env_x_range
+env_y_range = args.env_y_range
+draw_trajectory = args.draw_trajectory
+num_lessons = args.num_lessons
+truck_speed = args.truck_speed
+wandb_log = args.wandb_log
+wandb_username = args.wandb_username
+save_computational_graph = args.save_computational_graph
+
 current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
 π = pi
 style.use(['dark_background', 'bmh'])
@@ -25,29 +67,33 @@ def create_lesson_configs(num_lessons):
     configs = {}
 
     first_lesson = {"θ0_range": (-10, 10),
-                    "Δθ1_range": (-10, 10),
+                    "Δθ_range": (-10, 10),
                     "x_range": (10, 10),
                     "y_range": (-2, 2)}
     
-    final_lesson = {"θ0_range": (-120, 120),
-                    "Δθ1_range": (-45, 45),
-                    "x_range": (10, 35),
-                    "y_range": (-7, 7)}
+    final_lesson = {"θ0_range": final_cab_angle_range,
+                    "Δθ_range": final_cab_trailer_angle_diff_range,
+                    "x_range": final_x_cab_range,
+                    "y_range": final_y_cab_range}
 
     x_min = first_lesson["x_range"][0]
 
     for i in range(1, num_lessons + 1):
 
-        θ0_max = first_lesson["θ0_range"][1] + (final_lesson["θ0_range"][1] - first_lesson["θ0_range"][1]) * (i - 1) // (num_lessons - 1)
+        θ0_max = first_lesson["θ0_range"][1] + (final_lesson["θ0_range"][1] - 
+                                                first_lesson["θ0_range"][1]) * (i - 1) // (num_lessons - 1)
         
-        Δθ1_max = first_lesson["Δθ1_range"][1] + (final_lesson["Δθ1_range"][1] - first_lesson["Δθ1_range"][1]) * (i - 1) // (num_lessons - 1)
+        Δθ1_max = first_lesson["Δθ_range"][1] + (final_lesson["Δθ_range"][1] - 
+                                                  first_lesson["Δθ_range"][1]) * (i - 1) // (num_lessons - 1)
         
-        x_max = first_lesson["x_range"][1] + (final_lesson["x_range"][1] - first_lesson["x_range"][1]) * (i - 1) // (num_lessons - 1)
+        x_max = first_lesson["x_range"][1] + (final_lesson["x_range"][1] - 
+                                              first_lesson["x_range"][1]) * (i - 1) // (num_lessons - 1)
         
-        y_max = first_lesson["y_range"][1] + (final_lesson["y_range"][1] - first_lesson["y_range"][1]) * (i - 1) // (num_lessons - 1)
+        y_max = first_lesson["y_range"][1] + (final_lesson["y_range"][1] - 
+                                              first_lesson["y_range"][1]) * (i - 1) // (num_lessons - 1)
 
         configs[i] = {"θ0_range": (-θ0_max, θ0_max),
-                      "Δθ1_range": (-Δθ1_max, Δθ1_max),
+                      "Δθ_range": (-Δθ1_max, Δθ1_max),
                       "x_range": (x_min, x_max),
                       "y_range": (-y_max, y_max)}
         x_min = x_max
@@ -63,11 +109,11 @@ class Truck:
         self.W = 1 
         self.L = 1 * self.W 
         self.d = 4 * self.L 
-        self.s = -0.1
+        self.s = truck_speed
         self.display = display
         self.lesson = lesson
         
-        self.box = [0, 40, -10, 10]
+        self.box = [0, env_x_range[1], env_y_range[0], env_y_range[1]]
         if self.display:
             self.f = figure(figsize=(6, 3), num='The Truck Backer-Upper', facecolor='none')
             self.ax = self.f.add_axes([0.01, 0.01, 0.98, 0.98], facecolor='black')
@@ -85,7 +131,6 @@ class Truck:
         self.trailer_trajectory = []
         self.cab_trajectory = []
         
-            
     def reset(self, ϕ=0, train_test = "train", test_seed = 1):
         self.trailer_trajectory.clear()
         self.cab_trajectory.clear()
@@ -98,13 +143,13 @@ class Truck:
 
         if train_test == "train":
             self.θ0 = deg2rad(uniform(*config["θ0_range"]))
-            self.θ1 = deg2rad(uniform(*config["Δθ1_range"])) + self.θ0
+            self.θ1 = deg2rad(uniform(*config["Δθ_range"])) + self.θ0
             self.x = uniform(*config["x_range"])
             self.y = uniform(*config["y_range"])
         elif train_test == "test": 
             seed(test_seed)
             self.θ0 = deg2rad(uniform(*config["θ0_range"]))
-            self.θ1 = deg2rad(uniform(*config["Δθ1_range"])) + self.θ0
+            self.θ1 = deg2rad(uniform(*config["Δθ_range"])) + self.θ0
             self.x = uniform(*config["x_range"])
             self.y = uniform(*config["y_range"])            
                     
@@ -295,14 +340,18 @@ class Truck:
                 'k--', linewidth=1.5)
         
         
+        # plt.gca().add_patch(Rectangle((0, -10), 40, 20, linewidth=2, edgecolor='gray', facecolor='none'))
+        # plt.gca().add_patch(Rectangle((0, self.box[2]), self.box[1], abs(self.box[2]) + abs(self.box[3]), linewidth=2, edgecolor='green', facecolor='none'))
+
+                        
         plt.xlim(self.box[0], self.box[1])
         plt.ylim(self.box[2], self.box[3])
-        plt.grid(True, linestyle='--', alpha=0.2, color='gray')
+        plt.grid(False)
         
-        legend = plt.legend(loc='center left', bbox_to_anchor=(1.01, 0.5),
-                           frameon=True, framealpha=0.95, 
-                           fancybox=True, shadow=False, fontsize=8, 
-                           title='Trajectory Points')
+        plt.legend(loc='center left', bbox_to_anchor=(1.01, 0.5),
+                   frameon=True, framealpha=0.95, 
+                   fancybox=True, shadow=False, fontsize=8, 
+                   title='Trajectory Points')
         
         for spine in plt.gca().spines.values():
             spine.set_linewidth(0.5)
@@ -321,8 +370,6 @@ class Truck:
         fig = plt.gcf() 
         fig.patch.set_facecolor('white')      
         plt.savefig(f'{directory}/trajectory-{test_seed}.png', dpi=300, facecolor='white', bbox_inches='tight')      
-        
-        plt.show(block=False)  
         
     def update_state(self, state): 
         self.ϕ, self.x, self.y, self.θ0, self.θ1 = state.tolist()
@@ -367,7 +414,6 @@ def criterion_controller(ϕ_state):
     y_tr = y - 4 * torch.sin(θ1)
     angle_diff = torch.abs(θ1 - θ0)
     angle_diff_relu = nn.functional.relu((angle_diff - deg2rad(30))/deg2rad(30))
-    print(x_tr)
     x_tr_relu = nn.functional.relu(x_tr)
     min_θ1 = torch.min(torch.abs(θ1), torch.abs(torch.abs(θ1) - deg2rad(360)))
     return (x_tr_relu**2 + y_tr**2 + min_θ1**2 + angle_diff_relu**2) / 4
@@ -376,7 +422,7 @@ def train_emulator(emulator,
                    episodes, 
                    learning_rate, 
                    lesson, 
-                   wandb_log = False):
+                   wandb_log = wandb_log):
     
     if wandb_log:
         wandb.init(project='emulator-training', save_code = True, name=f'lesson_{lesson}_run_{current_time}')
@@ -460,8 +506,8 @@ def train_controller(lesson,
                      controller, 
                      epochs, 
                      max_steps,
-                     wandb_log = False,
-                     save_computational_graph = False,
+                     wandb_log = wandb_log,
+                     save_computational_graph = save_computational_graph,
                      learning_rate = 0.001):
       
     if wandb_log: 
@@ -542,17 +588,18 @@ if train_eval == "train":
     for lesson in range(1, num_lessons + 2): 
         print(" Lesson {}:".format(lesson))
         controller = train_controller(lesson = lesson, 
-                                    controller = controller,
-                                    epochs = 3000,
-                                    max_steps = 400)
+                                      controller = controller,
+                                      epochs = 3000,
+                                      max_steps = 400)
         print()
 
-final_lesson = 11
+final_lesson = num_lessons + 1
+
 test_controller = torch.load('models/controllers/controller_lesson_{}.pth'.format(final_lesson), weights_only = False)
 truck = Truck(lesson = final_lesson, display = True)
 
 num_jackknifes = 0
-for test_seed in range(1,10):
+for test_seed in range(1,11):
     with torch.no_grad():
         truck.reset(train_test = "test", test_seed = test_seed)    
         i = 0
@@ -563,7 +610,8 @@ for test_seed in range(1,10):
             truck.step(ϕ.item()) 
             truck.draw()
             i += 1
-        truck._draw_trajectory(test_seed)
+        if draw_trajectory:
+            truck._draw_trajectory(test_seed)
         x, y, θ0, trailer_x, trailer_y, θ1 = truck.state()  
         num_jackknifes += truck.is_jackknifed()
         print(f"Number of Steps: {i}")
