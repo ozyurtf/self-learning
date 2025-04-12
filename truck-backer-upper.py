@@ -342,8 +342,7 @@ class Truck:
         
         # plt.gca().add_patch(Rectangle((0, -10), 40, 20, linewidth=2, edgecolor='gray', facecolor='none'))
         # plt.gca().add_patch(Rectangle((0, self.box[2]), self.box[1], abs(self.box[2]) + abs(self.box[3]), linewidth=2, edgecolor='green', facecolor='none'))
-
-                        
+             
         plt.xlim(self.box[0], self.box[1])
         plt.ylim(self.box[2], self.box[3])
         plt.grid(False)
