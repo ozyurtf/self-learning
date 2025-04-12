@@ -24,6 +24,10 @@
 
 ![Training Process](figures/training-process.png)
 
+## Run the Simulation
+
+To train or test the model, run:
+
 ```bash
 python truck-backer-upper.py \
     --train_eval eval \
