@@ -12,9 +12,13 @@
 
 <img src="videos/simulation-beyond-training.gif" width="75%" alt="Simulation After Training">
 
-## Trajectories
+## First 5 Trajectories
 
 ![Trajectory 1](trajectories/lesson-11/trajectory-1.png)
+
+![Trajectory 2](trajectories/lesson-11/trajectory-2.png)
+
+![Trajectory 2](trajectories/lesson-11/trajectory-3.png)
 
 ![Trajectory 4](trajectories/lesson-11/trajectory-4.png)
 
@@ -26,11 +30,38 @@
 
 ## Run the Simulation
 
-To train or test the model, run:
+Create and activate the conda environment with:
+
+```bash
+conda env create -f conda_env.yaml
+``` 
+
+```bash
+conda activate truck_backer_upper
+```
+
+To train models, run:
 
 ```bash
 python truck-backer-upper.py \
-    --train_eval eval \
+    --train_test train \
+    --final_cab_angle_range -120 120 \
+    --final_cab_trailer_angle_diff_range -45 45 \
+    --final_x_cab_range 10 35 \
+    --final_y_cab_range -7 7 \
+    --env_x_range 0 40 \
+    --env_y_range -10 10 \
+    --num_lessons 10 \
+    --truck_speed -0.1 \
+    --wandb_log False \
+    --save_computational_graph False 
+```
+
+To test the models, run:
+
+```bash
+python truck-backer-upper.py \
+    --train_test test \
     --final_cab_angle_range -120 120 \
     --final_cab_trailer_angle_diff_range -45 45 \
     --final_x_cab_range 10 35 \
@@ -38,11 +69,5 @@ python truck-backer-upper.py \
     --env_x_range 0 40 \
     --env_y_range -10 10 \
     --draw_trajectory True \
-    --num_lessons 10 \
     --truck_speed -0.1 \
-    --wandb_log False \
-    --save_computational_graph False 
 ```
-
-## Notes
-- The version of the Python that is used in this notebook is 3.10.15. 

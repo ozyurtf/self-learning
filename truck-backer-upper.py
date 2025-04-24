@@ -16,7 +16,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description="A training/testing script of Truck Backer Upper")
 
-parser.add_argument("--train_eval", type=str, default = "eval", required=False, help="Choose if you want to train a model from scratch or evaluate the existing models.")
+parser.add_argument("--train_test", type=str, default = "eval", required=False, help="Choose if you want to train a model from scratch or evaluate the existing models.")
 
 parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-120, 120), required=False, help="")
 
@@ -30,21 +30,21 @@ parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), requi
 
 parser.add_argument("--env_y_range", type=int, nargs=2, default = (-10, 10), required=False, help="")
 
-parser.add_argument("--draw_trajectory", type=bool, default = True, required=False, help="")
+parser.add_argument("--draw_trajectory", type=str, default = "True", required=False, help="")
 
 parser.add_argument("--num_lessons", type=int, default = 10, required=False, help="")
 
 parser.add_argument("--truck_speed", type=float, default = -0.1, required=False, help="")
 
-parser.add_argument("--wandb_log", type=bool, default = False, required=False, help="")
+parser.add_argument("--wandb_log", type=str, default = "False", required = False, help="")
 
 parser.add_argument("--wandb_username", type=str, default = "", required=False, help="")
 
-parser.add_argument("--save_computational_graph", type=bool, default = False, required=False, help="")
+parser.add_argument("--save_computational_graph", type=str, default = "False", required=False, help="")
 
 args = parser.parse_args()
 
-train_eval = args.train_eval
+train_test = args.train_test
 num_lessons = args.num_lessons
 final_cab_angle_range = args.final_cab_angle_range
 final_cab_trailer_angle_diff_range = args.final_cab_trailer_angle_diff_range
@@ -52,12 +52,12 @@ final_x_cab_range = args.final_x_cab_range
 final_y_cab_range = args.final_y_cab_range
 env_x_range = args.env_x_range
 env_y_range = args.env_y_range
-draw_trajectory = args.draw_trajectory
+draw_trajectory = args.draw_trajectory=="True"
 num_lessons = args.num_lessons
 truck_speed = args.truck_speed
-wandb_log = args.wandb_log
+wandb_log = args.wandb_log=="True"
 wandb_username = args.wandb_username
-save_computational_graph = args.save_computational_graph
+save_computational_graph = args.save_computational_graph=="True"
 
 current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
 π = pi
@@ -141,17 +141,13 @@ class Truck:
         if config is None: 
             raise ValueError(f"No configuration found for lesson {self.lesson}")       
 
-        if train_test == "train":
-            self.θ0 = deg2rad(uniform(*config["θ0_range"]))
-            self.θ1 = deg2rad(uniform(*config["Δθ_range"])) + self.θ0
-            self.x = uniform(*config["x_range"])
-            self.y = uniform(*config["y_range"])
-        elif train_test == "test": 
+        if train_test == "test": 
             seed(test_seed)
-            self.θ0 = deg2rad(uniform(*config["θ0_range"]))
-            self.θ1 = deg2rad(uniform(*config["Δθ_range"])) + self.θ0
-            self.x = uniform(*config["x_range"])
-            self.y = uniform(*config["y_range"])            
+            
+        self.θ0 = deg2rad(uniform(*config["θ0_range"]))
+        self.θ1 = deg2rad(uniform(*config["Δθ_range"])) + self.θ0
+        self.x = uniform(*config["x_range"])
+        self.y = uniform(*config["y_range"])            
                     
         # If poorly initialise, then re-initialise
         if not self.valid():
@@ -289,7 +285,7 @@ class Truck:
         self.patches += [trailer]
 
     def _draw_trajectory(self, test_seed): 
-                
+                        
         x_trailer_trajectory = [point[0] for point in self.trailer_trajectory]
         y_trailer_trajectory = [point[1] for point in self.trailer_trajectory]
         
@@ -338,11 +334,7 @@ class Truck:
         plt.plot([x_trailer_trajectory[-1], x_cab_trajectory[-1]], 
                 [y_trailer_trajectory[-1], y_cab_trajectory[-1]], 
                 'k--', linewidth=1.5)
-        
-        
-        # plt.gca().add_patch(Rectangle((0, -10), 40, 20, linewidth=2, edgecolor='gray', facecolor='none'))
-        # plt.gca().add_patch(Rectangle((0, self.box[2]), self.box[1], abs(self.box[2]) + abs(self.box[3]), linewidth=2, edgecolor='green', facecolor='none'))
-             
+                
         plt.xlim(self.box[0], self.box[1])
         plt.ylim(self.box[2], self.box[3])
         plt.grid(False)
@@ -518,7 +510,11 @@ def train_controller(lesson,
     
     for i in tqdm(range(epochs)):
         truck.reset()
-        ϕ = truck.ϕ
+        random_deg = generate_random_deg(mean = 0, 
+                                         std = 35, 
+                                         lower_bound = -70, 
+                                         upper_bound = 70)
+        ϕ = deg2rad(random_deg)         
         x, y, θ0, _, _, θ1 = truck.state()
         ϕ_state = torch.tensor([ϕ, x, y, θ0, θ1], dtype=torch.float32)
         step = 0
@@ -560,7 +556,7 @@ def train_controller(lesson,
             
     return controller
 
-if train_eval == "train":
+if train_test == "train":
     emulators_dir = 'models/emulators'
     if os.path.exists(emulators_dir):
         shutil.rmtree(emulators_dir)
@@ -609,7 +605,7 @@ for test_seed in range(1,11):
             truck.step(ϕ.item()) 
             truck.draw()
             i += 1
-        if draw_trajectory:
+        if draw_trajectory == True:
             truck._draw_trajectory(test_seed)
         x, y, θ0, trailer_x, trailer_y, θ1 = truck.state()  
         num_jackknifes += truck.is_jackknifed()
