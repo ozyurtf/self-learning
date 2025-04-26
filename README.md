@@ -12,7 +12,7 @@
 
 <img src="videos/simulation-beyond-training.gif" width="75%" alt="Simulation After Training">
 
-## First 5 Trajectories
+## First 10 Trajectories
 
 ![Trajectory 1](trajectories/lesson-11/trajectory-1.png)
 
@@ -68,10 +68,10 @@ To test the models, run:
 ```bash
 python truck-backer-upper.py \
     --train_test test \
-    --final_cab_angle_range -120 120 \
-    --final_cab_trailer_angle_diff_range -45 45 \
+    --final_cab_angle_range -75 75 \
+    --final_cab_trailer_angle_diff_range -30 30 \
     --final_x_cab_range 10 35 \
-    --final_y_cab_range -7 7 \
+    --final_y_cab_range -5 5 \
     --env_x_range 0 40 \
     --env_y_range -10 10 \
     --draw_trajectory True \
