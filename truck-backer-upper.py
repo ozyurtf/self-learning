@@ -16,7 +16,9 @@ import argparse
 
 parser = argparse.ArgumentParser(description="A training/testing script of Truck Backer Upper")
 
-parser.add_argument("--train_test", type=str, default = "eval", required=False, help="Choose if you want to train a model from scratch or evaluate the existing models.")
+parser.add_argument("--train_test", type=str, default = "test", required=False, help="Choose if you want to train a model from scratch or test the existing models.")
+
+parser.add_argument("--num_test_trajectories", type=int, default = 11, required=False, help="")
 
 parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-120, 120), required=False, help="")
 
@@ -45,6 +47,7 @@ parser.add_argument("--save_computational_graph", type=str, default = "False", r
 args = parser.parse_args()
 
 train_test = args.train_test
+num_test_trajectories = args.num_test_trajectories
 num_lessons = args.num_lessons
 final_cab_angle_range = args.final_cab_angle_range
 final_cab_trailer_angle_diff_range = args.final_cab_trailer_angle_diff_range
@@ -149,17 +152,14 @@ class Truck:
         self.x = uniform(*config["x_range"])
         self.y = uniform(*config["y_range"])            
                     
-        # If poorly initialise, then re-initialise
         if not self.valid():
             self.reset(ϕ)
         
-        # Draw, if display is True
         if self.display: 
             self.draw()        
     
     def step(self, ϕ=0, dt=1):
         
-        # Check for illegal conditions
         if self.is_jackknifed():
             print('The truck is jackknifed!')
             return
@@ -171,7 +171,6 @@ class Truck:
         self.ϕ = ϕ
         x, y, W, L, d, s, θ0, θ1, ϕ = self._get_atributes()
         
-        # Perform state update
         self.x += s * cos(θ0) * dt
         self.y += s * sin(θ0) * dt
         self.θ0 += s / L * tan(ϕ) * dt
@@ -365,10 +364,10 @@ class Truck:
     def update_state(self, state): 
         self.ϕ, self.x, self.y, self.θ0, self.θ1 = state.tolist()
         
-def generate_random_deg(mean, std, lower_bound, upper_bound):     
+def generate_random_deg(mean = 0, std = 35, lower_bound = -70, upper_bound = 70):     
     a = (lower_bound - mean) / std
     b = (upper_bound - mean) / std
-    samples = stats.truncnorm.rvs(a, b, loc=mean, scale=std, size=1)
+    samples = stats.truncnorm.rvs(a, b, loc = mean, scale = std, size = 1)
     sample = samples[0]    
     return sample
 
@@ -425,10 +424,7 @@ def train_emulator(emulator,
         truck.reset()
         while truck.valid():
             x, y, θ0, _, _, θ1 = truck.state()
-            random_deg = generate_random_deg(mean = 0, 
-                                             std = 35, 
-                                             lower_bound = -70, 
-                                             upper_bound = 70)
+            random_deg = generate_random_deg()
             ϕ = deg2rad(random_deg) 
             inputs.append((ϕ, x, y, θ0, θ1))
             x_next, y_next, θ0_next, _, _, θ1_next = truck.step(ϕ)
@@ -476,12 +472,13 @@ def train_emulator(emulator,
             next_state_prediction = emulator(ϕ_state)
             loss = criterion_emulator(next_state_prediction, next_state)
             total_loss += loss.item()
-            if wandb_log:
+            if wandb_log: 
                 wandb.log({'test_loss': loss.item()}, step = global_step)
             global_step += 1
 
     test_size = len(test_inputs)
     avg_test_loss = total_loss / test_size
+    
     
     print()
     print(f'Test loss: {avg_test_loss:.10f}')
@@ -510,12 +507,8 @@ def train_controller(lesson,
     
     for i in tqdm(range(epochs)):
         truck.reset()
-        random_deg = generate_random_deg(mean = 0, 
-                                         std = 35, 
-                                         lower_bound = -70, 
-                                         upper_bound = 70)
-        ϕ = deg2rad(random_deg)         
         x, y, θ0, _, _, θ1 = truck.state()
+        ϕ = truck.ϕ
         ϕ_state = torch.tensor([ϕ, x, y, θ0, θ1], dtype=torch.float32)
         step = 0
         
@@ -558,6 +551,7 @@ def train_controller(lesson,
 
 if train_test == "train":
     emulators_dir = 'models/emulators'
+    
     if os.path.exists(emulators_dir):
         shutil.rmtree(emulators_dir)
     os.makedirs(emulators_dir)
@@ -594,19 +588,20 @@ test_controller = torch.load('models/controllers/controller_lesson_{}.pth'.forma
 truck = Truck(lesson = final_lesson, display = True)
 
 num_jackknifes = 0
-for test_seed in range(1,11):
+for test_seed in range(1, num_test_trajectories):
     with torch.no_grad():
         truck.reset(train_test = "test", test_seed = test_seed)    
+        ϕ = truck.ϕ
         i = 0
         while truck.valid():
             x, y, θ0, _, _, θ1 = truck.state()
-            state = torch.tensor([x, y, θ0, θ1], dtype=torch.float32) 
-            ϕ = test_controller(state) 
-            truck.step(ϕ.item()) 
+            state = torch.tensor([x, y, θ0, θ1], dtype = torch.float32) 
+            next_ϕ = test_controller(state) 
+            truck.step(ϕ)
             truck.draw()
+            ϕ = next_ϕ.item()
             i += 1
-        if draw_trajectory == True:
-            truck._draw_trajectory(test_seed)
+        if draw_trajectory: truck._draw_trajectory(test_seed)
         x, y, θ0, trailer_x, trailer_y, θ1 = truck.state()  
         num_jackknifes += truck.is_jackknifed()
         print(f"Number of Steps: {i}")

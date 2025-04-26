@@ -24,9 +24,15 @@
 
 ![Trajectory 5](trajectories/lesson-11/trajectory-5.png)
 
-## Training Process 
+![Trajectory 6](trajectories/lesson-11/trajectory-6.png)
 
-![Training Process](figures/training-process.png)
+![Trajectory 7](trajectories/lesson-11/trajectory-7.png)
+
+![Trajectory 8](trajectories/lesson-11/trajectory-8.png)
+
+![Trajectory 9](trajectories/lesson-11/trajectory-9.png)
+
+![Trajectory 10](trajectories/lesson-11/trajectory-10.png)
 
 ## Run the Simulation
 
