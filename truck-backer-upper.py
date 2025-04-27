@@ -16,11 +16,13 @@ import argparse
 
 parser = argparse.ArgumentParser(description="A training/testing script of Truck Backer Upper")
 
-parser.add_argument("--train_test", type=str, default = "test", required=False, help="Choose if you want to train a model from scratch or test the existing models.")
+parser.add_argument("--train_emulator", type=str, default = "False", required=False, help="")
+
+parser.add_argument("--train_controller", type=str, default = "False", required=False, help="")
 
 parser.add_argument("--num_test_trajectories", type=int, default = 11, required=False, help="")
 
-parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-120, 120), required=False, help="")
+parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-180, 180), required=False, help="")
 
 parser.add_argument("--final_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False, help="")
 
@@ -30,9 +32,9 @@ parser.add_argument("--final_y_cab_range", type=int, nargs=2, default = (-7, 7),
 
 parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False, help="")
 
-parser.add_argument("--env_y_range", type=int, nargs=2, default = (-10, 10), required=False, help="")
+parser.add_argument("--env_y_range", type=int, nargs=2, default = (-15, 15), required=False, help="")
 
-parser.add_argument("--draw_trajectory", type=str, default = "True", required=False, help="")
+parser.add_argument("--display_trajectories", type=str, default = "False", required=False, help="")
 
 parser.add_argument("--num_lessons", type=int, default = 10, required=False, help="")
 
@@ -46,7 +48,8 @@ parser.add_argument("--save_computational_graph", type=str, default = "False", r
 
 args = parser.parse_args()
 
-train_test = args.train_test
+train_emulator_flag = args.train_emulator=="True"
+train_controller_flag = args.train_controller=="True"
 num_test_trajectories = args.num_test_trajectories
 num_lessons = args.num_lessons
 final_cab_angle_range = args.final_cab_angle_range
@@ -55,7 +58,7 @@ final_x_cab_range = args.final_x_cab_range
 final_y_cab_range = args.final_y_cab_range
 env_x_range = args.env_x_range
 env_y_range = args.env_y_range
-draw_trajectory = args.draw_trajectory=="True"
+display_trajectories = args.display_trajectories=="True"
 num_lessons = args.num_lessons
 truck_speed = args.truck_speed
 wandb_log = args.wandb_log=="True"
@@ -118,7 +121,7 @@ class Truck:
         
         self.box = [0, env_x_range[1], env_y_range[0], env_y_range[1]]
         if self.display:
-            self.f = figure(figsize=(6, 3), num='The Truck Backer-Upper', facecolor='none')
+            self.f = figure(figsize=(8, 6), num='The Truck Backer-Upper', facecolor='none')
             self.ax = self.f.add_axes([0.01, 0.01, 0.98, 0.98], facecolor='black')
             self.patches = list()
             
@@ -283,7 +286,7 @@ class Truck:
         
         self.patches += [trailer]
 
-    def _draw_trajectory(self, test_seed): 
+    def _draw_trajectories(self, test_seed): 
                         
         x_trailer_trajectory = [point[0] for point in self.trailer_trajectory]
         y_trailer_trajectory = [point[1] for point in self.trailer_trajectory]
@@ -297,6 +300,7 @@ class Truck:
         
         trailer_color = '#1f77b4'  
         cab_color = '#ff7f0e'      
+        
         
         plt.plot(x_trailer_trajectory, y_trailer_trajectory, 
                  color=trailer_color, linestyle='-', linewidth=1.5, alpha=0.8)
@@ -325,6 +329,7 @@ class Truck:
         plt.scatter(x_cab_trajectory[-1], y_cab_trajectory[-1], 
                    marker='x', color=cab_color, s=60, zorder=10,
                    label='Cab End Position')
+        
         
         plt.plot([x_trailer_trajectory[0], x_cab_trajectory[0]], 
                 [y_trailer_trajectory[0], y_cab_trajectory[0]], 
@@ -359,7 +364,9 @@ class Truck:
             
         fig = plt.gcf() 
         fig.patch.set_facecolor('white')      
-        plt.savefig(f'{directory}/trajectory-{test_seed}.png', dpi=300, facecolor='white', bbox_inches='tight')      
+        plt.savefig(f'{directory}/trajectory-{test_seed}.png', dpi=300, facecolor='white', bbox_inches='tight')  
+        if display_trajectories==False:
+            plt.close()    
         
     def update_state(self, state): 
         self.ϕ, self.x, self.y, self.θ0, self.θ1 = state.tolist()
@@ -448,7 +455,7 @@ def train_emulator(emulator,
     
     global_step = 0
     for i in torch.randperm(len(train_inputs)):
-        ϕ_state = train_inputs[i]
+        ϕ_state = train_inputs[ i]
         
         next_state_prediction = emulator(ϕ_state)
         next_state = train_outputs[i]
@@ -478,7 +485,6 @@ def train_emulator(emulator,
 
     test_size = len(test_inputs)
     avg_test_loss = total_loss / test_size
-    
     
     print()
     print(f'Test loss: {avg_test_loss:.10f}')
@@ -549,7 +555,8 @@ def train_controller(lesson,
             
     return controller
 
-if train_test == "train":
+if train_emulator_flag:
+    
     emulators_dir = 'models/emulators'
     
     if os.path.exists(emulators_dir):
@@ -566,6 +573,9 @@ if train_test == "train":
                                 learning_rate = 0.00001)
         print()
         
+    train_controller_flag = True
+        
+if train_controller_flag:        
     controllers_dir = 'models/controllers'
     
     if os.path.exists(controllers_dir):
@@ -601,7 +611,7 @@ for test_seed in range(1, num_test_trajectories):
             truck.draw()
             ϕ = next_ϕ.item()
             i += 1
-        if draw_trajectory: truck._draw_trajectory(test_seed)
+        truck._draw_trajectories(test_seed)
         x, y, θ0, trailer_x, trailer_y, θ1 = truck.state()  
         num_jackknifes += truck.is_jackknifed()
         print(f"Number of Steps: {i}")

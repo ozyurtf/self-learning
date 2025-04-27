@@ -46,34 +46,43 @@ conda env create -f conda_env.yaml
 conda activate truck_backer_upper
 ```
 
-To train models, run:
+To train the models, run:
 
 ```bash
 python truck-backer-upper.py \
-    --train_test train \
-    --final_cab_angle_range -120 120 \
+    --train_emulator True \
+    --train_controller True \
+    --final_cab_angle_range -180 180 \
     --final_cab_trailer_angle_diff_range -45 45 \
     --final_x_cab_range 10 35 \
     --final_y_cab_range -7 7 \
     --env_x_range 0 40 \
-    --env_y_range -10 10 \
+    --env_y_range -15 15 \
     --num_lessons 10 \
     --truck_speed -0.1 \
     --wandb_log False \
     --save_computational_graph False 
 ```
 
-To test the models, run:
+To test the models inside the training region, run:
 
 ```bash
 python truck-backer-upper.py \
-    --train_test test \
-    --final_cab_angle_range -75 75 \
-    --final_cab_trailer_angle_diff_range -30 30 \
-    --final_x_cab_range 10 35 \
-    --final_y_cab_range -5 5 \
-    --env_x_range 0 40 \
-    --env_y_range -10 10 \
-    --draw_trajectory True \
+    --final_cab_angle_range -90 90 \
+    --final_cab_trailer_angle_diff_range -45 45 \
+    --truck_speed -0.1 \
+```
+
+
+To test the models outside the training region, run:
+
+```bash
+python truck-backer-upper.py \
+    --final_cab_angle_range -90 90 \
+    --final_cab_trailer_angle_diff_range -45 45 \
+    --final_x_cab_range 70 100 \
+    --final_y_cab_range -15 15 \
+    --env_x_range 0 100 \
+    --env_y_range -25 25 \
     --truck_speed -0.1 \
 ```
