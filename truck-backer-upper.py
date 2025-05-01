@@ -22,21 +22,21 @@ parser.add_argument("--train_controller", type=str, default = "False", required=
 
 parser.add_argument("--num_test_trajectories", type=int, default = 11, required=False, help="")
 
-parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-120, 120), required=False, help="")
+parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-360, 360), required=False, help="")
 
 parser.add_argument("--final_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False, help="")
 
-parser.add_argument("--final_x_cab_range", type=int, nargs=2, default = (10, 35), required=False, help="")
-
-parser.add_argument("--final_y_cab_range", type=int, nargs=2, default = (-7, 7), required=False, help="")
-
 parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False, help="")
+
+parser.add_argument("--final_x_cab_range", type=int, nargs=2, default = (10, 35), required=False, help="")
 
 parser.add_argument("--env_y_range", type=int, nargs=2, default = (-20, 20), required=False, help="")
 
+parser.add_argument("--final_y_cab_range", type=int, nargs=2, default = (-7, 7), required=False, help="")
+
 parser.add_argument("--display_trajectories", type=str, default = "False", required=False, help="")
 
-parser.add_argument("--num_lessons", type=int, default = 10, required=False, help="")
+parser.add_argument("--num_lessons", type=int, default = 20, required=False, help="")
 
 parser.add_argument("--truck_speed", type=float, default = -0.1, required=False, help="")
 
