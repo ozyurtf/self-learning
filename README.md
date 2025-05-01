@@ -14,25 +14,25 @@
 
 ## First 10 Trajectories
 
-![Trajectory 1](trajectories/lesson-11/trajectory-1.png)
+![Trajectory 1](trajectories/lesson-21/trajectory-1.png)
 
-![Trajectory 2](trajectories/lesson-11/trajectory-2.png)
+![Trajectory 2](trajectories/lesson-21/trajectory-2.png)
 
-![Trajectory 2](trajectories/lesson-11/trajectory-3.png)
+![Trajectory 2](trajectories/lesson-21/trajectory-3.png)
 
-![Trajectory 4](trajectories/lesson-11/trajectory-4.png)
+![Trajectory 4](trajectories/lesson-21/trajectory-4.png)
 
-![Trajectory 5](trajectories/lesson-11/trajectory-5.png)
+![Trajectory 5](trajectories/lesson-21/trajectory-5.png)
 
-![Trajectory 6](trajectories/lesson-11/trajectory-6.png)
+![Trajectory 6](trajectories/lesson-21/trajectory-6.png)
 
-![Trajectory 7](trajectories/lesson-11/trajectory-7.png)
+![Trajectory 7](trajectories/lesson-21/trajectory-7.png)
 
-![Trajectory 8](trajectories/lesson-11/trajectory-8.png)
+![Trajectory 8](trajectories/lesson-21/trajectory-8.png)
 
-![Trajectory 9](trajectories/lesson-11/trajectory-9.png)
+![Trajectory 9](trajectories/lesson-21/trajectory-9.png)
 
-![Trajectory 10](trajectories/lesson-11/trajectory-10.png)
+![Trajectory 10](trajectories/lesson-21/trajectory-10.png)
 
 ## Run the Simulation
 
