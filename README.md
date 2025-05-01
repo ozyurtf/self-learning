@@ -52,7 +52,7 @@ To train the models, run:
 python truck-backer-upper.py \
     --train_emulator True \
     --train_controller True \
-    --final_cab_angle_range -180 180 \
+    --final_cab_angle_range -360 360 \
     --final_cab_trailer_angle_diff_range -45 45 \
     --final_x_cab_range 10 35 \
     --final_y_cab_range -7 7 \
@@ -68,7 +68,7 @@ To test the models inside the training region, run:
 
 ```bash
 python truck-backer-upper.py \
-    --final_cab_angle_range -90 90 \
+    --final_cab_angle_range -360 360 \
     --final_cab_trailer_angle_diff_range -45 45 \
     --truck_speed -0.1 \
 ```
@@ -78,7 +78,7 @@ To test the models outside the training region, run:
 
 ```bash
 python truck-backer-upper.py \
-    --final_cab_angle_range -90 90 \
+    --final_cab_angle_range -360 360 \
     --final_cab_trailer_angle_diff_range -45 45 \
     --final_x_cab_range 70 100 \
     --final_y_cab_range -15 15 \
