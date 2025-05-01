@@ -22,7 +22,7 @@ parser.add_argument("--train_controller", type=str, default = "False", required=
 
 parser.add_argument("--num_test_trajectories", type=int, default = 11, required=False, help="")
 
-parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-180, 180), required=False, help="")
+parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-120, 120), required=False, help="")
 
 parser.add_argument("--final_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False, help="")
 
@@ -32,7 +32,7 @@ parser.add_argument("--final_y_cab_range", type=int, nargs=2, default = (-7, 7),
 
 parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False, help="")
 
-parser.add_argument("--env_y_range", type=int, nargs=2, default = (-15, 15), required=False, help="")
+parser.add_argument("--env_y_range", type=int, nargs=2, default = (-20, 20), required=False, help="")
 
 parser.add_argument("--display_trajectories", type=str, default = "False", required=False, help="")
 
@@ -72,16 +72,16 @@ style.use(['dark_background', 'bmh'])
 def create_lesson_configs(num_lessons):
     configs = {}
 
-    first_lesson = {"θ0_range": (-10, 10),
-                    "Δθ_range": (-10, 10),
-                    "x_range": (10, 10),
-                    "y_range": (-2, 2)}
+    first_lesson = {"x_range": (10, 10),
+                    "y_range": (-2, 2),
+                    "θ0_range": (-10, 10),
+                    "Δθ_range": (-10, 10)}
     
-    final_lesson = {"θ0_range": final_cab_angle_range,
-                    "Δθ_range": final_cab_trailer_angle_diff_range,
-                    "x_range": final_x_cab_range,
-                    "y_range": final_y_cab_range}
-
+    final_lesson = {"x_range": final_x_cab_range,
+                    "y_range": final_y_cab_range,
+                    "θ0_range": final_cab_angle_range,
+                    "Δθ_range": final_cab_trailer_angle_diff_range}
+                   
     x_min = first_lesson["x_range"][0]
 
     for i in range(1, num_lessons + 1):
@@ -201,10 +201,10 @@ class Truck:
         return x - d * cos(θ1), y - d * sin(θ1)
         
     def is_jackknifed(self):
-        x, y, W, L, d, s, θ0, θ1, ϕ = self._get_atributes()
-        angle_diff_rad = abs(θ0 - θ1)
-        angle_diff_deg = rad2deg(angle_diff_rad)
-        return angle_diff_deg > 90
+        x, y, W, L, d, s, θ0, θ1, ϕ = self._get_atributes()   
+        diff_deg = rad2deg(θ0) - rad2deg(θ1) 
+        abs_diff_deg = abs(diff_deg)
+        return min(abs_diff_deg,  abs(abs_diff_deg - 360)) > 90
     
     def is_offscreen(self):
         x, y, W, L, d, s, θ0, θ1, ϕ = self._get_atributes()
@@ -507,7 +507,7 @@ def train_controller(lesson,
     if wandb_log: 
         wandb.init(project='controller-training', save_code = True, name=f'lesson_{lesson}_run_{current_time}')
       
-    emulator = torch.load('models/emulators/emulator_lesson_{}.pth'.format(lesson), weights_only=False)
+    emulator = torch.load('/Users/ozyurtf/Documents/projects/truck-backer-upper/models/emulators/emulator_lesson_11.pth', weights_only=False)
     optimizer = torch.optim.Adam(controller.parameters(), lr=learning_rate)
     truck = Truck(lesson, display=False)
     
