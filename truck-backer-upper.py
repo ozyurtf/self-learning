@@ -20,9 +20,9 @@ parser.add_argument("--train_emulator", type=str, default = "False", required=Fa
 
 parser.add_argument("--train_controller", type=str, default = "False", required=False, help="")
 
-parser.add_argument("--num_test_trajectories", type=int, default = 11, required=False, help="")
+parser.add_argument("--num_test_trajectories", type=int, default = 10, required=False, help="")
 
-parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-360, 360), required=False, help="")
+parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-90, 90), required=False, help="")
 
 parser.add_argument("--final_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False, help="")
 
@@ -36,7 +36,9 @@ parser.add_argument("--final_y_cab_range", type=int, nargs=2, default = (-7, 7),
 
 parser.add_argument("--display_trajectories", type=str, default = "False", required=False, help="")
 
-parser.add_argument("--num_lessons", type=int, default = 20, required=False, help="")
+parser.add_argument("--num_lessons", type=int, default = 10, required=False, help="")
+
+parser.add_argument("--test_lesson", type=int, default = 11, required=False, help="")
 
 parser.add_argument("--truck_speed", type=float, default = -0.1, required=False, help="")
 
@@ -52,6 +54,7 @@ train_emulator_flag = args.train_emulator=="True"
 train_controller_flag = args.train_controller=="True"
 num_test_trajectories = args.num_test_trajectories
 num_lessons = args.num_lessons
+test_lesson = args.test_lesson
 final_cab_angle_range = args.final_cab_angle_range
 final_cab_trailer_angle_diff_range = args.final_cab_trailer_angle_diff_range
 final_x_cab_range = args.final_x_cab_range
@@ -508,7 +511,7 @@ def train_controller(lesson,
     if wandb_log: 
         wandb.init(project='controller-training', save_code = True, name=f'lesson_{lesson}_run_{current_time}')
       
-    emulator = torch.load('/Users/ozyurtf/Documents/projects/truck-backer-upper/models/emulators/emulator_lesson_11.pth', weights_only=False)
+    emulator = torch.load(f'./models/emulators/emulator_lesson_{lesson}.pth', weights_only=False)
     optimizer = torch.optim.Adam(controller.parameters(), lr=learning_rate)
     truck = Truck(lesson, display=False)
     
@@ -593,10 +596,8 @@ if train_controller_flag:
                                       max_steps = 400)
         print()
 
-final_lesson = num_lessons + 1
-
-test_controller = torch.load('models/controllers/controller_lesson_{}.pth'.format(final_lesson), weights_only = False)
-truck = Truck(lesson = final_lesson, display = True)
+test_controller = torch.load('models/controllers/controller_lesson_{}.pth'.format(test_lesson), weights_only = False)
+truck = Truck(lesson = test_lesson, display = True)
 
 num_jackknifes = 0
 for test_seed in range(1, num_test_trajectories):
