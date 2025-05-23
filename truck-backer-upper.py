@@ -17,35 +17,19 @@ import argparse
 parser = argparse.ArgumentParser(description="A training/testing script of Truck Backer Upper")
 
 parser.add_argument("--train_emulator", type=str, default = "False", required=False, help="")
-
 parser.add_argument("--train_controller", type=str, default = "False", required=False, help="")
-
 parser.add_argument("--num_test_trajectories", type=int, default = 10, required=False, help="")
-
 parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-90, 90), required=False, help="")
-
 parser.add_argument("--final_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False, help="")
-
-parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False, help="")
-
 parser.add_argument("--final_x_cab_range", type=int, nargs=2, default = (10, 35), required=False, help="")
-
-parser.add_argument("--env_y_range", type=int, nargs=2, default = (-20, 20), required=False, help="")
-
 parser.add_argument("--final_y_cab_range", type=int, nargs=2, default = (-7, 7), required=False, help="")
-
+parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False, help="")
+parser.add_argument("--env_y_range", type=int, nargs=2, default = (-20, 20), required=False, help="")
 parser.add_argument("--display_trajectories", type=str, default = "False", required=False, help="")
-
 parser.add_argument("--num_lessons", type=int, default = 10, required=False, help="")
-
 parser.add_argument("--test_lesson", type=int, default = 11, required=False, help="")
-
 parser.add_argument("--truck_speed", type=float, default = -0.1, required=False, help="")
-
 parser.add_argument("--wandb_log", type=str, default = "False", required = False, help="")
-
-parser.add_argument("--wandb_username", type=str, default = "", required=False, help="")
-
 parser.add_argument("--save_computational_graph", type=str, default = "False", required=False, help="")
 
 args = parser.parse_args()
@@ -53,8 +37,6 @@ args = parser.parse_args()
 train_emulator_flag = args.train_emulator=="True"
 train_controller_flag = args.train_controller=="True"
 num_test_trajectories = args.num_test_trajectories
-num_lessons = args.num_lessons
-test_lesson = args.test_lesson
 final_cab_angle_range = args.final_cab_angle_range
 final_cab_trailer_angle_diff_range = args.final_cab_trailer_angle_diff_range
 final_x_cab_range = args.final_x_cab_range
@@ -63,9 +45,9 @@ env_x_range = args.env_x_range
 env_y_range = args.env_y_range
 display_trajectories = args.display_trajectories=="True"
 num_lessons = args.num_lessons
+test_lesson = args.test_lesson
 truck_speed = args.truck_speed
 wandb_log = args.wandb_log=="True"
-wandb_username = args.wandb_username
 save_computational_graph = args.save_computational_graph=="True"
 
 current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
@@ -396,7 +378,7 @@ def initialize_emulator():
 
 def initialize_controller():
     controller = nn.Sequential( 
-        nn.Linear(4, 100),
+        nn.Linear(5, 100),
         nn.GELU(),
         nn.Linear(100, 100),
         nn.GELU(),        
@@ -506,7 +488,7 @@ def train_controller(lesson,
                      max_steps,
                      wandb_log = wandb_log,
                      save_computational_graph = save_computational_graph,
-                     learning_rate = 0.001):
+                     learning_rate = 0.0001):
       
     if wandb_log: 
         wandb.init(project='controller-training', save_code = True, name=f'lesson_{lesson}_run_{current_time}')
@@ -523,7 +505,7 @@ def train_controller(lesson,
         step = 0
         
         while step <= max_steps and truck.valid():
-            ϕ_prediction = controller(ϕ_state[1:])
+            ϕ_prediction = controller(ϕ_state)
             next_state_prediction = emulator(ϕ_state)
             ϕ_state = torch.cat((ϕ_prediction, next_state_prediction))
             truck.update_state(ϕ_state)
@@ -603,15 +585,16 @@ num_jackknifes = 0
 for test_seed in range(1, num_test_trajectories):
     with torch.no_grad():
         truck.reset(train_test = "test", test_seed = test_seed)    
-        ϕ = truck.ϕ
+        ϕ = torch.tensor([truck.ϕ])
         i = 0
         while truck.valid():
             x, y, θ0, _, _, θ1 = truck.state()
             state = torch.tensor([x, y, θ0, θ1], dtype = torch.float32) 
-            next_ϕ = test_controller(state) 
-            truck.step(ϕ)
+            ϕ_state = torch.cat((ϕ, state))
+            next_ϕ = test_controller(ϕ_state) 
+            truck.step(ϕ.item())
             truck.draw()
-            ϕ = next_ϕ.item()
+            ϕ = next_ϕ
             i += 1
         truck._draw_trajectories(test_seed)
         x, y, θ0, trailer_x, trailer_y, θ1 = truck.state()  
