@@ -582,7 +582,7 @@ test_controller = torch.load('models/controllers/controller_lesson_{}.pth'.forma
 truck = Truck(lesson = test_lesson, display = True)
 
 num_jackknifes = 0
-for test_seed in range(1, num_test_trajectories):
+for test_seed in range(1, num_test_trajectories + 1):
     with torch.no_grad():
         truck.reset(train_test = "test", test_seed = test_seed)    
         ϕ = torch.tensor([truck.ϕ])
