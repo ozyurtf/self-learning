@@ -1,5 +1,7 @@
 # Truck Backer Upper 
 
+![Truck](figures/truck.png)
+
 ## Simulation Before Training 
 
 <img src="videos/simulation-before-training.gif" width="75%" alt="Simulation After Training">
