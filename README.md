@@ -1,8 +1,8 @@
 # Truck Backer Upper 
 
-![Truck](figures/truck.png)
-
 ## Truck Kinematics 
+
+![Truck](figures/truck.png)
 
 ![Truck](figures/kinematics.png)
 
