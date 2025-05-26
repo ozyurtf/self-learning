@@ -13,38 +13,55 @@ import matplotlib.style as style
 import os
 import shutil
 import argparse
+import matplotlib.patches as patches
 
-parser = argparse.ArgumentParser(description="A training/testing script of Truck Backer Upper")
+parser = argparse.ArgumentParser(description="Training/Testing Code of Truck Backer Upper")
 
-parser.add_argument("--train_emulator", type=str, default = "False", required=False, help="")
-parser.add_argument("--train_controller", type=str, default = "False", required=False, help="")
-parser.add_argument("--num_test_trajectories", type=int, default = 10, required=False, help="")
-parser.add_argument("--final_cab_angle_range", type=int, nargs=2, default = (-90, 90), required=False, help="")
-parser.add_argument("--final_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False, help="")
-parser.add_argument("--final_x_cab_range", type=int, nargs=2, default = (10, 35), required=False, help="")
-parser.add_argument("--final_y_cab_range", type=int, nargs=2, default = (-7, 7), required=False, help="")
-parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False, help="")
-parser.add_argument("--env_y_range", type=int, nargs=2, default = (-20, 20), required=False, help="")
-parser.add_argument("--display_trajectories", type=str, default = "False", required=False, help="")
-parser.add_argument("--num_lessons", type=int, default = 10, required=False, help="")
-parser.add_argument("--test_lesson", type=int, default = 11, required=False, help="")
-parser.add_argument("--truck_speed", type=float, default = -0.1, required=False, help="")
-parser.add_argument("--wandb_log", type=str, default = "False", required = False, help="")
-parser.add_argument("--save_computational_graph", type=str, default = "False", required=False, help="")
+parser.add_argument("--train_emulator", type=str, default = "False", required=False)
+parser.add_argument("--train_controller", type=str, default = "False", required=False)
+parser.add_argument("--num_test_trajectories", type=int, default = 10, required=False)
+
+parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False)
+parser.add_argument("--env_y_range", type=int, nargs=2, default = (-15, 15), required=False)
+
+parser.add_argument("--train_x_cab_range", type=int, nargs=2, default = (5, 35), required=False)    
+parser.add_argument("--train_y_cab_range_abs", type=int, nargs=2, default = (3, 7), required=False)
+parser.add_argument("--train_cab_angle_range_abs", type=int, nargs=2, default = (10, 90), required=False)
+parser.add_argument("--train_cab_trailer_angle_diff_range_abs", type=int, nargs=2, default = (10, 45), required=False)
+parser.add_argument("--train_num_lessons", type=int, default = 10, required=False)
+
+parser.add_argument("--test_x_cab_range", type=int, nargs=2, default = (5, 35), required=False)
+parser.add_argument("--test_y_cab_range", type=int, nargs=2, default = (-7, 7), required=False)
+parser.add_argument("--test_cab_angle_range", type=int, nargs=2, default = (-90, 90), required=False)
+parser.add_argument("--test_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False)
+parser.add_argument("--test_lesson", type=int, default = 10, required=False)
+
+parser.add_argument("--display_trajectories", type=str, default = "False", required=False)
+parser.add_argument("--truck_speed", type=float, default = -0.1, required=False)
+parser.add_argument("--wandb_log", type=str, default = "False", required = False)
+parser.add_argument("--save_computational_graph", type=str, default = "False", required=False)
 
 args = parser.parse_args()
 
 train_emulator_flag = args.train_emulator=="True"
 train_controller_flag = args.train_controller=="True"
 num_test_trajectories = args.num_test_trajectories
-final_cab_angle_range = args.final_cab_angle_range
-final_cab_trailer_angle_diff_range = args.final_cab_trailer_angle_diff_range
-final_x_cab_range = args.final_x_cab_range
-final_y_cab_range = args.final_y_cab_range
+
+train_x_cab_range = args.train_x_cab_range
+train_y_cab_range_abs = args.train_y_cab_range_abs
+train_cab_angle_range_abs = args.train_cab_angle_range_abs
+train_cab_trailer_angle_diff_range_abs = args.train_cab_trailer_angle_diff_range_abs
+train_num_lessons = args.train_num_lessons
+
+test_x_cab_range = args.test_x_cab_range
+test_y_cab_range = args.test_y_cab_range
+test_cab_angle_range = args.test_cab_angle_range
+test_cab_trailer_angle_diff_range = args.test_cab_trailer_angle_diff_range
+
 env_x_range = args.env_x_range
 env_y_range = args.env_y_range
 display_trajectories = args.display_trajectories=="True"
-num_lessons = args.num_lessons
+
 test_lesson = args.test_lesson
 truck_speed = args.truck_speed
 wandb_log = args.wandb_log=="True"
@@ -54,45 +71,38 @@ current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
 π = pi
 style.use(['dark_background', 'bmh'])
 
-def create_lesson_configs(num_lessons):
+def create_train_configs(num_lessons):
     configs = {}
+    first_x_cab, final_x_cab = train_x_cab_range
+    first_y_cab, final_y_cab = train_y_cab_range_abs
+    first_cab_angle, final_cab_angle = train_cab_angle_range_abs
+    first_cab_trailer_angle_diff, final_cab_trailer_angle_diff = train_cab_trailer_angle_diff_range_abs
+    x_min = first_x_cab
 
-    first_lesson = {"x_range": (10, 10),
-                    "y_range": (-2, 2),
-                    "θ0_range": (-10, 10),
-                    "Δθ_range": (-10, 10)}
-    
-    final_lesson = {"x_range": final_x_cab_range,
-                    "y_range": final_y_cab_range,
-                    "θ0_range": final_cab_angle_range,
-                    "Δθ_range": final_cab_trailer_angle_diff_range}
-                   
-    x_min = first_lesson["x_range"][0]
-
-    for i in range(1, num_lessons + 1):
-
-        θ0_max = first_lesson["θ0_range"][1] + (final_lesson["θ0_range"][1] - 
-                                                first_lesson["θ0_range"][1]) * (i - 1) // (num_lessons - 1)
+    for i in range(1, num_lessons):
+        x_max = first_x_cab + (final_x_cab - first_x_cab) * (i - 1) / (num_lessons - 1)
+        y_max = first_y_cab + (final_y_cab - first_y_cab) * (i - 1) / (num_lessons - 1)        
+        θ0_max = first_cab_angle + (final_cab_angle - first_cab_angle) * (i - 1) / (num_lessons - 1)
+        Δθ_max = first_cab_trailer_angle_diff + (final_cab_trailer_angle_diff - first_cab_trailer_angle_diff) * (i - 1) / (num_lessons - 1)
         
-        Δθ1_max = first_lesson["Δθ_range"][1] + (final_lesson["Δθ_range"][1] - 
-                                                  first_lesson["Δθ_range"][1]) * (i - 1) // (num_lessons - 1)
-        
-        x_max = first_lesson["x_range"][1] + (final_lesson["x_range"][1] - 
-                                              first_lesson["x_range"][1]) * (i - 1) // (num_lessons - 1)
-        
-        y_max = first_lesson["y_range"][1] + (final_lesson["y_range"][1] - 
-                                              first_lesson["y_range"][1]) * (i - 1) // (num_lessons - 1)
-
-        configs[i] = {"θ0_range": (-θ0_max, θ0_max),
-                      "Δθ_range": (-Δθ1_max, Δθ1_max),
-                      "x_range": (x_min, x_max),
-                      "y_range": (-y_max, y_max)}
+        configs[i] = {"x_range": (x_min, x_max),
+                      "y_range": (-y_max, y_max),
+                      "θ0_range": (-θ0_max, θ0_max),
+                      "Δθ_range": (-Δθ_max, Δθ_max)}
         x_min = x_max
         
-    configs[num_lessons+1] = final_lesson
+    configs[num_lessons] = {"x_range": (first_x_cab, x_max),
+                            "y_range": (-y_max, y_max),
+                            "θ0_range": (-θ0_max, θ0_max),
+                            "Δθ_range": (-Δθ_max, Δθ_max)}
+            
     return configs
 
-LESSON_CONFIGS = create_lesson_configs(num_lessons)
+train_configs = create_train_configs(train_num_lessons)
+test_config = {"x_range": test_x_cab_range,
+               "y_range": test_y_cab_range,
+               "θ0_range": test_cab_angle_range,
+               "Δθ_range": test_cab_trailer_angle_diff_range}
 
 class Truck:
     def __init__(self, lesson, display=False):
@@ -106,10 +116,10 @@ class Truck:
         
         self.box = [0, env_x_range[1], env_y_range[0], env_y_range[1]]
         if self.display:
-            self.f = figure(figsize=(8, 6), num='The Truck Backer-Upper', facecolor='none')
+            self.f = figure(figsize=(8, 4), num='The Truck Backer-Upper', facecolor='none')
             self.ax = self.f.add_axes([0.01, 0.01, 0.98, 0.98], facecolor='black')
             self.patches = list()
-            
+                
             self.ax.axis('equal')
             b = self.box
             self.ax.axis([b[0] - 1, b[1], b[2], b[3]])
@@ -127,19 +137,22 @@ class Truck:
         self.cab_trajectory.clear()
         
         self.ϕ = ϕ 
-        config = LESSON_CONFIGS.get(self.lesson)
+        if train_test == "train":
+            config = train_configs.get(self.lesson)
+        else: 
+            config = test_config
         
         if config is None: 
-            raise ValueError(f"No configuration found for lesson {self.lesson}")       
+            raise ValueError(f"No configuration found")       
 
         if train_test == "test": 
             seed(test_seed)
             
+        self.x = uniform(*config["x_range"])
+        self.y = uniform(*config["y_range"])                    
         self.θ0 = deg2rad(uniform(*config["θ0_range"]))
         self.θ1 = deg2rad(uniform(*config["Δθ_range"])) + self.θ0
-        self.x = uniform(*config["x_range"])
-        self.y = uniform(*config["y_range"])            
-                    
+    
         if not self.valid():
             self.reset(ϕ)
         
@@ -286,7 +299,6 @@ class Truck:
         trailer_color = '#1f77b4'  
         cab_color = '#ff7f0e'      
         
-        
         plt.plot(x_trailer_trajectory, y_trailer_trajectory, 
                  color=trailer_color, linestyle='-', linewidth=1.5, alpha=0.8)
         
@@ -300,12 +312,12 @@ class Truck:
                     color=cab_color, marker='.', s=15, alpha=0.6)
         
         plt.scatter(x_trailer_trajectory[0], y_trailer_trajectory[0], 
-                   marker='o', color=trailer_color, s=60, zorder=10, 
-                   label='Trailer Start Position')
+                    marker='o', color=trailer_color, s=60, zorder=10, 
+                    label='Trailer Start Position')
         
         plt.scatter(x_cab_trajectory[0], y_cab_trajectory[0], 
-                   marker='o', color=cab_color, s=60, zorder=10,
-                   label='Cab Start Position')
+                    marker='o', color=cab_color, s=60, zorder=10,
+                    label='Cab Start Position')
                 
         plt.scatter(x_trailer_trajectory[-1], y_trailer_trajectory[-1], 
                    marker='x', color=trailer_color, s=60, zorder=10,
@@ -317,21 +329,65 @@ class Truck:
         
         
         plt.plot([x_trailer_trajectory[0], x_cab_trajectory[0]], 
-                [y_trailer_trajectory[0], y_cab_trajectory[0]], 
-                'k--', linewidth=1.5) 
+                 [y_trailer_trajectory[0], y_cab_trajectory[0]], 
+                 'k--', linewidth=1.5) 
 
         plt.plot([x_trailer_trajectory[-1], x_cab_trajectory[-1]], 
-                [y_trailer_trajectory[-1], y_cab_trajectory[-1]], 
-                'k--', linewidth=1.5)
-                
-        plt.xlim(self.box[0], self.box[1])
-        plt.ylim(self.box[2], self.box[3])
-        plt.grid(False)
+                 [y_trailer_trajectory[-1], y_cab_trajectory[-1]], 
+                 'k--', linewidth=1.5)
         
-        plt.legend(loc='center left', bbox_to_anchor=(1.01, 0.5),
-                   frameon=True, framealpha=0.95, 
-                   fancybox=True, shadow=False, fontsize=8, 
-                   title='Trajectory Points')
+        plt.xlim(env_x_range[0], env_x_range[1])
+        plt.ylim(env_y_range[0], env_y_range[1])
+
+        rectangle_red = patches.Rectangle((train_x_cab_range[0], -train_y_cab_range_abs[1]), train_x_cab_range[1]-train_x_cab_range[0], train_y_cab_range_abs[1] * 2,
+                                            facecolor='red',           
+                                            edgecolor='darkred',       
+                                            alpha=0.3,                 
+                                            linewidth=2)
+        
+        plt.gca().add_patch(rectangle_red)     
+        
+        red_x0 = train_x_cab_range[0]
+        red_y0 = -train_y_cab_range_abs[1]
+        red_width = train_x_cab_range[1] - red_x0
+        red_height = train_y_cab_range_abs[1] * 2
+
+        plt.text(red_x0 + red_width - 0.2, 
+                 red_y0 + red_height - 0.2,
+                 'Training Region',
+                 color='white',
+                 ha='right',
+                 va='top',
+                 fontsize=5,
+                 fontweight='bold')
+
+                
+        rectangle_green = patches.Rectangle((env_x_range[0], env_y_range[0]), env_x_range[1] - env_x_range[0], env_y_range[1] - env_y_range[0],
+                                            facecolor='green',           
+                                            edgecolor='darkgreen',       
+                                            alpha=0.3,                 
+                                            linewidth=2)
+        
+        plt.gca().add_patch(rectangle_green)     
+        
+        green_x0 = env_x_range[0]
+        green_y0 = env_y_range[0]
+        green_width = env_x_range[1] - green_x0
+        green_height = env_y_range[1] - green_y0
+
+        plt.text(green_x0 + green_width - 0.2,  
+                 green_y0 + green_height - 0.2,
+                 'Testing Region',
+                 color='white',
+                 ha='right',
+                 va='top',
+                 fontsize=5,
+                 fontweight='bold')
+        
+        plt.scatter(0, 0, marker='x', color="darkgray", s=60, zorder=10, label = "Target") 
+        plt.grid(False)
+        plt.xticks([])
+        plt.yticks([])
         
         for spine in plt.gca().spines.values():
             spine.set_linewidth(0.5)
@@ -360,18 +416,17 @@ def generate_random_deg(mean = 0, std = 35, lower_bound = -70, upper_bound = 70)
     a = (lower_bound - mean) / std
     b = (upper_bound - mean) / std
     samples = stats.truncnorm.rvs(a, b, loc = mean, scale = std, size = 1)
-    sample = samples[0]    
+    sample = samples[0]
     return sample
 
 def initialize_emulator(): 
     emulator = nn.Sequential(
         nn.Linear(5, 100),
-        nn.GELU(),
+        nn.ReLU(),
         nn.Linear(100,100),
-        nn.GELU(),        
+        nn.ReLU(),        
         nn.Linear(100, 4)
     )
-
     torch.save(emulator, 'models/emulators/emulator_lesson_0.pth')
     return emulator
 
@@ -379,12 +434,11 @@ def initialize_emulator():
 def initialize_controller():
     controller = nn.Sequential( 
         nn.Linear(5, 100),
-        nn.GELU(),
+        nn.ReLU(),
         nn.Linear(100, 100),
-        nn.GELU(),        
+        nn.ReLU(),        
         nn.Linear(100, 1),
     )
-          
     torch.save(controller, 'models/controllers/controller_lesson_0.pth')
     return controller
 
@@ -486,9 +540,9 @@ def train_controller(lesson,
                      controller, 
                      epochs, 
                      max_steps,
+                     learning_rate,
                      wandb_log = wandb_log,
-                     save_computational_graph = save_computational_graph,
-                     learning_rate = 0.0001):
+                     save_computational_graph = save_computational_graph):
       
     if wandb_log: 
         wandb.init(project='controller-training', save_code = True, name=f'lesson_{lesson}_run_{current_time}')
@@ -551,7 +605,7 @@ if train_emulator_flag:
     
     emulator = initialize_emulator()
 
-    for lesson in range(1, num_lessons + 2):
+    for lesson in range(1, train_num_lessons + 1):
         print(" Lesson {}:".format(lesson))
         emulator = train_emulator(lesson = lesson,
                                 emulator = emulator,
@@ -570,12 +624,13 @@ if train_controller_flag:
 
     controller = initialize_controller()
 
-    for lesson in range(1, num_lessons + 2): 
+    for lesson in range(1, train_num_lessons + 1): 
         print(" Lesson {}:".format(lesson))
         controller = train_controller(lesson = lesson, 
                                       controller = controller,
                                       epochs = 3000,
-                                      max_steps = 400)
+                                      max_steps = 400,
+                                      learning_rate = 0.0001)
         print()
 
 test_controller = torch.load('models/controllers/controller_lesson_{}.pth'.format(test_lesson), weights_only = False)
