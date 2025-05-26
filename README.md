@@ -2,6 +2,19 @@
 
 ![Truck](figures/truck.png)
 
+## Truck Kinematics 
+
+![Truck](figures/kinematics.png)
+
+## Training Emulator 
+
+![Truck](figures/emulator-training.png)
+
+## Training Controller
+
+![Truck](figures/controller-training.png)
+
+
 ## Simulation Before Training 
 
 <img src="videos/simulation-before-training.gif" width="75%" alt="Simulation After Training">
