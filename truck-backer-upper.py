@@ -448,8 +448,8 @@ def criterion_controller(ϕ_state):
     ϕ, x, y, θ0, θ1 = ϕ_state 
     x_tr = x - 4 * torch.cos(θ1)
     y_tr = y - 4 * torch.sin(θ1)
-    diff_deg = torch.rad2deg(θ0) - torch.rad2deg(θ1) 
-    abs_diff_deg = torch.abs(diff_deg)
+    abs_diff_rad = torch.abs(θ0 - θ1) 
+    abs_diff_deg = torch.deg2rad(abs_diff_rad)
     angle_diff_deg_relu = nn.functional.relu(torch.min(abs_diff_deg, abs(abs_diff_deg - 360)) - 90)
     x_tr_relu = nn.functional.relu(x_tr)
     min_θ1 = torch.min(torch.abs(θ1), torch.abs(torch.abs(θ1) - deg2rad(360)))

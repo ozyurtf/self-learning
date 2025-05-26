@@ -75,8 +75,6 @@ python truck-backer-upper.py\
     --env_x_range 0 100
 ```
 
-
-
 To train both emulator and controller models, run:
 
 ```bash
