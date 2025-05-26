@@ -64,40 +64,28 @@ conda activate truck_backer_upper
 To test the models inside the training region, run:
 
 ```bash
-python truck-backer-upper.py \
-    --final_cab_angle_range -90 90 \
-    --final_cab_trailer_angle_diff_range -45 45 \
-    --truck_speed -0.1 \
+python truck-backer-upper.py
 ```
-
-
 To test the models outside the training region, run:
 
 ```bash
 python truck-backer-upper.py \
-    --final_cab_angle_range -90 90 \
-    --final_cab_trailer_angle_diff_range -45 45 \
-    --final_x_cab_range 70 100 \
-    --final_y_cab_range -15 15 \
     --env_x_range 0 100 \
-    --env_y_range -25 25 \
-    --truck_speed -0.1 \
+    --env_y_range -20 20 \ 
+    --test_x_cab_range 70 90 \
+    --test_y_cab_range -15 15 \
 ```
 
-To train the models, run:
+To train both emulator and controller models, run:
 
 ```bash
 python truck-backer-upper.py \
-    --train_emulator True \
-    --train_controller True \
-    --final_cab_angle_range -90 90 \
-    --final_cab_trailer_angle_diff_range -45 45 \
-    --final_x_cab_range 10 35 \
-    --final_y_cab_range -7 7 \
-    --env_x_range 0 40 \
-    --env_y_range -20 20 \
-    --num_lessons 10 \
-    --truck_speed -0.1 \
-    --wandb_log False \
-    --save_computational_graph False 
+    --train_emulator True 
+```
+
+To train only controller models, run:
+
+```bash
+python truck-backer-upper.py \
+    --train_controller True 
 ```
