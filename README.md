@@ -72,8 +72,7 @@ To test the models outside the training region, run:
 python truck-backer-upper.py\
     --test_x_cab_range 70 90\
     --test_y_cab_range -15 15\
-    --env_x_range 0 100\
-    --test_lesson 10
+    --env_x_range 0 100
 ```
 
 
