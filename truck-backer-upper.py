@@ -1,6 +1,7 @@
 from matplotlib.pylab import *
 from matplotlib.patches import Rectangle
 from matplotlib.lines import Line2D
+import matplotlib.patches as patches
 import torch
 import torch.nn as nn
 from torchviz import make_dot
@@ -13,7 +14,6 @@ import matplotlib.style as style
 import os
 import shutil
 import argparse
-import matplotlib.patches as patches
 
 parser = argparse.ArgumentParser(description="Training/Testing Code of Truck Backer Upper")
 
@@ -25,7 +25,7 @@ parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), requi
 parser.add_argument("--env_y_range", type=int, nargs=2, default = (-15, 15), required=False)
 
 parser.add_argument("--train_x_cab_range", type=int, nargs=2, default = (5, 35), required=False)    
-parser.add_argument("--train_y_cab_range_abs", type=int, nargs=2, default = (3, 7), required=False)
+parser.add_argument("--train_y_cab_range_abs", type=int, nargs=2, default = (2, 7), required=False)
 parser.add_argument("--train_cab_angle_range_abs", type=int, nargs=2, default = (10, 90), required=False)
 parser.add_argument("--train_cab_trailer_angle_diff_range_abs", type=int, nargs=2, default = (10, 45), required=False)
 parser.add_argument("--train_num_lessons", type=int, default = 10, required=False)
@@ -77,24 +77,24 @@ def create_train_configs(num_lessons):
     first_y_cab, final_y_cab = train_y_cab_range_abs
     first_cab_angle, final_cab_angle = train_cab_angle_range_abs
     first_cab_trailer_angle_diff, final_cab_trailer_angle_diff = train_cab_trailer_angle_diff_range_abs
-    x_min = first_x_cab
+    x_lower = first_x_cab
 
     for i in range(1, num_lessons):
-        x_max = first_x_cab + (final_x_cab - first_x_cab) * (i - 1) / (num_lessons - 1)
-        y_max = first_y_cab + (final_y_cab - first_y_cab) * (i - 1) / (num_lessons - 1)        
-        θ0_max = first_cab_angle + (final_cab_angle - first_cab_angle) * (i - 1) / (num_lessons - 1)
-        Δθ_max = first_cab_trailer_angle_diff + (final_cab_trailer_angle_diff - first_cab_trailer_angle_diff) * (i - 1) / (num_lessons - 1)
+        x_upper = first_x_cab + (final_x_cab - first_x_cab) * (i - 1) / (num_lessons - 1)
+        y_upper = first_y_cab + (final_y_cab - first_y_cab) * (i - 1) / (num_lessons - 1)        
+        θ0_upper = first_cab_angle + (final_cab_angle - first_cab_angle) * (i - 1) / (num_lessons - 1)
+        Δθ_upper = first_cab_trailer_angle_diff + (final_cab_trailer_angle_diff - first_cab_trailer_angle_diff) * (i - 1) / (num_lessons - 1)
         
-        configs[i] = {"x_range": (x_min, x_max),
-                      "y_range": (-y_max, y_max),
-                      "θ0_range": (-θ0_max, θ0_max),
-                      "Δθ_range": (-Δθ_max, Δθ_max)}
-        x_min = x_max
+        configs[i] = {"x_range": (x_lower, x_upper),
+                      "y_range": (-y_upper, y_upper),
+                      "θ0_range": (-θ0_upper, θ0_upper),
+                      "Δθ_range": (-Δθ_upper, Δθ_upper)}
+        x_lower = x_upper
         
-    configs[num_lessons] = {"x_range": (first_x_cab, x_max),
-                            "y_range": (-y_max, y_max),
-                            "θ0_range": (-θ0_max, θ0_max),
-                            "Δθ_range": (-Δθ_max, Δθ_max)}
+    configs[num_lessons] = {"x_range": (first_x_cab, x_upper),
+                            "y_range": (-y_upper, y_upper),
+                            "θ0_range": (-θ0_upper, θ0_upper),
+                            "Δθ_range": (-Δθ_upper, Δθ_upper)}
             
     return configs
 
@@ -116,7 +116,7 @@ class Truck:
         
         self.box = [0, env_x_range[1], env_y_range[0], env_y_range[1]]
         if self.display:
-            self.f = figure(figsize=(8, 4), num='The Truck Backer-Upper', facecolor='none')
+            self.f = figure(figsize=(10, 6), num='The Truck Backer-Upper', facecolor='none')
             self.ax = self.f.add_axes([0.01, 0.01, 0.98, 0.98], facecolor='black')
             self.patches = list()
                 
@@ -422,9 +422,9 @@ def generate_random_deg(mean = 0, std = 35, lower_bound = -70, upper_bound = 70)
 def initialize_emulator(): 
     emulator = nn.Sequential(
         nn.Linear(5, 100),
-        nn.ReLU(),
+        nn.GELU(),
         nn.Linear(100,100),
-        nn.ReLU(),        
+        nn.GELU(),        
         nn.Linear(100, 4)
     )
     torch.save(emulator, 'models/emulators/emulator_lesson_0.pth')
@@ -434,9 +434,9 @@ def initialize_emulator():
 def initialize_controller():
     controller = nn.Sequential( 
         nn.Linear(5, 100),
-        nn.ReLU(),
+        nn.GELU(),
         nn.Linear(100, 100),
-        nn.ReLU(),        
+        nn.GELU(),        
         nn.Linear(100, 1),
     )
     torch.save(controller, 'models/controllers/controller_lesson_0.pth')
@@ -446,12 +446,11 @@ criterion_emulator = nn.MSELoss()
 
 def criterion_controller(ϕ_state):
     ϕ, x, y, θ0, θ1 = ϕ_state 
-    x_tr = x - 4 * torch.cos(θ1)
-    y_tr = y - 4 * torch.sin(θ1)
-    abs_diff_rad = torch.abs(θ0 - θ1) 
-    abs_diff_deg = torch.deg2rad(abs_diff_rad)
-    angle_diff_deg_relu = nn.functional.relu(torch.min(abs_diff_deg, abs(abs_diff_deg - 360)) - 90)
+    x_tr, y_tr = x - 4 * torch.cos(θ1), y - 4 * torch.sin(θ1)
     x_tr_relu = nn.functional.relu(x_tr)
+    abs_diff_rad = torch.abs(θ0 - θ1) 
+    abs_diff_deg = torch.rad2deg(abs_diff_rad)
+    angle_diff_deg_relu = nn.functional.relu(torch.min(abs_diff_deg, abs(abs_diff_deg - 360)) - 90)
     min_θ1 = torch.min(torch.abs(θ1), torch.abs(torch.abs(θ1) - deg2rad(360)))
     return (x_tr_relu**2 + y_tr**2 + min_θ1**2 + angle_diff_deg_relu**2) / 4
 

@@ -1,10 +1,6 @@
-# Truck Backer Upper 
-
 ## Truck Kinematics 
 
-![Truck](figures/truck.png)
-
-![Truck](figures/kinematics.png)
+![Truck](figures/truck-kinematics.png)
 
 ## Training Emulator 
 
@@ -13,7 +9,6 @@
 ## Training Controller
 
 ![Truck](figures/controller-training.png)
-
 
 ## Simulation Before Training 
 
