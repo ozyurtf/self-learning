@@ -68,7 +68,8 @@ python truck-backer-upper.py\
     --env_x_range 0 100\
     --env_y_range -30 30\
     --test_x_cab_range 40 90\
-    --test_y_cab_range -20 20  
+    --test_y_cab_range -20 20\
+    --test_cab_angle_range -90 90  
 ```
 
 To train both emulator and controller models, run:
