@@ -17,23 +17,28 @@ import argparse
 
 parser = argparse.ArgumentParser(description="Training/Testing Code of Truck Backer Upper")
 
-parser.add_argument("--train_emulator", type=str, default = "False", required=False)
-parser.add_argument("--train_controller", type=str, default = "False", required=False)
-parser.add_argument("--num_test_trajectories", type=int, default = 10, required=False)
 parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False)
 parser.add_argument("--env_y_range", type=int, nargs=2, default = (-15, 15), required=False)
-parser.add_argument("--train_x_cab_range", type=int, nargs=2, default = (5, 35), required=False)    
+
+parser.add_argument("--train_emulator", type=str, default = "False", required=False)
+parser.add_argument("--train_controller", type=str, default = "False", required=False)
+parser.add_argument("--train_x_cab_range", type=int, nargs=2, default = (10, 35), required=False)    
 parser.add_argument("--train_y_cab_range_abs", type=int, nargs=2, default = (2, 7), required=False)
-parser.add_argument("--train_cab_angle_range_abs", type=int, nargs=2, default = (10, 90), required=False)
+parser.add_argument("--train_cab_angle_range_abs", type=int, nargs=2, default = (10, 180), required=False)
 parser.add_argument("--train_cab_trailer_angle_diff_range_abs", type=int, nargs=2, default = (10, 45), required=False)
 parser.add_argument("--train_num_lessons", type=int, default = 10, required=False)
-parser.add_argument("--test_x_cab_range", type=int, nargs=2, default = (5, 35), required=False)
+
+parser.add_argument("--test_x_cab_range", type=int, nargs=2, default = (10, 35), required=False)
 parser.add_argument("--test_y_cab_range", type=int, nargs=2, default = (-7, 7), required=False)
-parser.add_argument("--test_cab_angle_range", type=int, nargs=2, default = (-90, 90), required=False)
+parser.add_argument("--test_cab_angle_range", type=int, nargs=2, default = (-180, 180), required=False)
 parser.add_argument("--test_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False)
 parser.add_argument("--test_lesson", type=int, default = 10, required=False)
-parser.add_argument("--display_trajectories", type=str, default = "False", required=False)
+
 parser.add_argument("--truck_speed", type=float, default = -0.1, required=False)
+
+parser.add_argument("--num_test_trajectories", type=int, default = 10, required=False)
+parser.add_argument("--display_trajectories", type=str, default = "False", required=False)
+
 parser.add_argument("--wandb_log", type=str, default = "False", required = False)
 parser.add_argument("--save_computational_graph", type=str, default = "False", required=False)
 
@@ -426,7 +431,6 @@ def initialize_emulator():
     torch.save(emulator, 'models/emulators/emulator_lesson_0.pth')
     return emulator
 
-
 def initialize_controller():
     controller = nn.Sequential( 
         nn.Linear(5, 100),
@@ -437,6 +441,17 @@ def initialize_controller():
     )
     torch.save(controller, 'models/controllers/controller_lesson_0.pth')
     return controller
+
+# def initialize_validity_checker():
+#     controller = nn.Sequential( 
+#         nn.Linear(5, 100),
+#         nn.GELU(),
+#         nn.Linear(100, 100),
+#         nn.GELU(),        
+#         nn.Linear(100, 1),
+#     )
+#     torch.save(controller, 'models/controllers/controller_lesson_0.pth')
+#     return controller
 
 criterion_emulator = nn.MSELoss()  
 
@@ -489,7 +504,7 @@ def train_emulator(emulator,
     optimizer = torch.optim.Adam(emulator.parameters(), lr=learning_rate)
     
     global_step = 0
-    for i in torch.randperm(len(train_inputs)):
+    for i in torch.randperm(len(train_inputs)): 
         ϕ_state = train_inputs[ i]
         
         next_state_prediction = emulator(ϕ_state)
@@ -603,9 +618,9 @@ if train_emulator_flag:
     for lesson in range(1, train_num_lessons + 1):
         print(" Lesson {}:".format(lesson))
         emulator = train_emulator(lesson = lesson,
-                                emulator = emulator,
-                                episodes = 10_000,
-                                learning_rate = 0.00001)
+                                  emulator = emulator,
+                                  episodes = 10_000,
+                                  learning_rate = 0.00001)
         print()
         
     train_controller_flag = True

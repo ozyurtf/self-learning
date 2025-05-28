@@ -67,14 +67,14 @@ To test the models outside the training region, run:
 python truck-backer-upper.py\
     --env_x_range 0 100\
     --env_y_range -30 30\
-    --test_x_cab_range 0 90\
-    --test_y_cab_range -25 25  
+    --test_x_cab_range 40 90\
+    --test_y_cab_range -20 20  
 ```
 
 To train both emulator and controller models, run:
 
 ```bash
-python truck-backer-upper.py\
+python truck-backer-upper.py\ 
     --train_emulator True 
 ```
 
