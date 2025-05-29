@@ -442,17 +442,6 @@ def initialize_controller():
     torch.save(controller, 'models/controllers/controller_lesson_0.pth')
     return controller
 
-# def initialize_validity_checker():
-#     controller = nn.Sequential( 
-#         nn.Linear(5, 100),
-#         nn.GELU(),
-#         nn.Linear(100, 100),
-#         nn.GELU(),        
-#         nn.Linear(100, 1),
-#     )
-#     torch.save(controller, 'models/controllers/controller_lesson_0.pth')
-#     return controller
-
 criterion_emulator = nn.MSELoss()  
 
 def criterion_controller(ϕ_state):
