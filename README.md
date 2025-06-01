@@ -12,11 +12,11 @@
 
 ## Simulation Before Training 
 
-<img src="gifs/lesson-0-2025-06-01_01-41AM.gif" alt="Simulation Before Training">
+<img src="gifs/lesson-0-2025-06-01_01-49AM.gif" alt="Simulation Before Training">
 
 ## Simulation After Training
 
-<img src="gifs/lesson-10-2025-06-01_01-39AM.gif" alt="Simulation After Training">
+<img src="gifs/lesson-10-2025-06-01_01-51AM.gif" alt="Simulation After Training">
 
 
 ## Trajectories

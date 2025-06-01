@@ -139,7 +139,7 @@ class Truck:
         self.frames = []
         
         if self.display:
-            self.f = figure(figsize=(10, 6), num='The Truck Backer-Upper', facecolor='none')
+            self.f = figure(figsize=(10, 5), dpi = 100, num='The Truck Backer-Upper', facecolor='none')
             self.ax = self.f.add_axes([0.01, 0.01, 0.98, 0.98], facecolor='black')
             self.patches = list()
                 
@@ -156,15 +156,7 @@ class Truck:
                                               linewidth=3)
             
             plt.gca().add_patch(rectangle_red)   
-                
-            rectangle_green = patches.Rectangle((env_x_range[0], env_y_range[0]), env_x_range[1] - env_x_range[0], env_y_range[1] - env_y_range[0],
-                                                edgecolor="darkgreen",
-                                                facecolor="none",           
-                                                alpha=1,                 
-                                                linewidth=3)
-            
-            plt.gca().add_patch(rectangle_green)     
-            
+                            
             red_x0 = train_x_cab_range[0]
             red_y0 = -train_y_cab_range_abs[1]
             red_width = train_x_cab_range[1] - red_x0
