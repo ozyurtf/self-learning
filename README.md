@@ -12,7 +12,7 @@
 
 ## Simulation Before Training 
 
-<img src="gifs/lesson-0-2025-06-01_01-49AM.gif" alt="Simulation Before Training">
+<img src="gifs/lesson-0-2025-06-01_01-49AM.gif" alt="Simulation Before Training" width="400">
 
 ## Simulation After Training
 
