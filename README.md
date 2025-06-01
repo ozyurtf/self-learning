@@ -12,17 +12,14 @@
 
 ## Simulation Before Training 
 
-<img src="videos/simulation-before-training.gif" width="75%" alt="Simulation After Training">
+<img src="gifs/lesson-0-2025-06-01_01-41AM.gif" width="75%" alt="Simulation Before Training">
 
 ## Simulation After Training
 
-<img src="videos/simulation-after-training.gif" width="75%" alt="Simulation After Training">
+<img src="gifs/lesson-10-2025-06-01_01-39AM.gif" width="75%" alt="Simulation After Training">
 
-## Simulation Beyond Training Boundaries
 
-<img src="videos/simulation-beyond-training.gif" width="75%" alt="Simulation After Training">
-
-## First 10 Trajectories
+## Trajectories
 
 ![Trajectory 1](trajectories/lesson-10/trajectory-1.png)
 
@@ -46,6 +43,8 @@
 
 ## Run the Simulation
 
+
+
 Create and activate the conda environment with:
 
 ```bash
@@ -68,20 +67,17 @@ python truck-backer-upper.py\
     --env_x_range 0 100\
     --env_y_range -30 30\
     --test_x_cab_range 40 90\
-    --test_y_cab_range -20 20\
-    --test_cab_angle_range -90 90  
+    --test_y_cab_range -20 20
 ```
 
 To train both emulator and controller models, run:
 
 ```bash
-python truck-backer-upper.py\ 
-    --train_emulator True 
+python truck-backer-upper.py --train_emulator True 
 ```
 
 To train only controller models, run:
 
 ```bash
-python truck-backer-upper.py\
-    --train_controller True 
+python truck-backer-upper.py --train_controller True 
 ```

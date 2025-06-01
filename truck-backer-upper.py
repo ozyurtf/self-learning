@@ -14,6 +14,10 @@ import matplotlib.style as style
 import os
 import shutil
 import argparse
+import imageio
+import subprocess
+from io import BytesIO
+from PIL import Image
 
 parser = argparse.ArgumentParser(description="Training/Testing Code of Truck Backer Upper")
 
@@ -22,16 +26,18 @@ parser.add_argument("--env_y_range", type=int, nargs=2, default = (-15, 15), req
 
 parser.add_argument("--train_emulator", type=str, default = "False", required=False)
 parser.add_argument("--train_controller", type=str, default = "False", required=False)
+
 parser.add_argument("--train_x_cab_range", type=int, nargs=2, default = (10, 35), required=False)    
 parser.add_argument("--train_y_cab_range_abs", type=int, nargs=2, default = (2, 7), required=False)
 parser.add_argument("--train_cab_angle_range_abs", type=int, nargs=2, default = (10, 180), required=False)
 parser.add_argument("--train_cab_trailer_angle_diff_range_abs", type=int, nargs=2, default = (10, 45), required=False)
-parser.add_argument("--train_num_lessons", type=int, default = 10, required=False)
 
 parser.add_argument("--test_x_cab_range", type=int, nargs=2, default = (10, 35), required=False)
 parser.add_argument("--test_y_cab_range", type=int, nargs=2, default = (-7, 7), required=False)
 parser.add_argument("--test_cab_angle_range", type=int, nargs=2, default = (-180, 180), required=False)
 parser.add_argument("--test_cab_trailer_angle_diff_range", type=int, nargs=2, default = (-45, 45), required=False)
+
+parser.add_argument("--train_num_lessons", type=int, default = 10, required=False)
 parser.add_argument("--test_lesson", type=int, default = 10, required=False)
 
 parser.add_argument("--truck_speed", type=float, default = -0.1, required=False)
@@ -41,65 +47,77 @@ parser.add_argument("--display_trajectories", type=str, default = "False", requi
 
 parser.add_argument("--wandb_log", type=str, default = "False", required = False)
 parser.add_argument("--save_computational_graph", type=str, default = "False", required=False)
+parser.add_argument("--generate_gif", type=str, default = "False", required=False)
 
 args = parser.parse_args()
 
+env_x_range = args.env_x_range
+env_y_range = args.env_y_range
+
 train_emulator_flag = args.train_emulator=="True"
 train_controller_flag = args.train_controller=="True"
-num_test_trajectories = args.num_test_trajectories
 
 train_x_cab_range = args.train_x_cab_range
 train_y_cab_range_abs = args.train_y_cab_range_abs
 train_cab_angle_range_abs = args.train_cab_angle_range_abs
 train_cab_trailer_angle_diff_range_abs = args.train_cab_trailer_angle_diff_range_abs
-train_num_lessons = args.train_num_lessons
 
 test_x_cab_range = args.test_x_cab_range
 test_y_cab_range = args.test_y_cab_range
 test_cab_angle_range = args.test_cab_angle_range
 test_cab_trailer_angle_diff_range = args.test_cab_trailer_angle_diff_range
 
-env_x_range = args.env_x_range
-env_y_range = args.env_y_range
+train_num_lessons = args.train_num_lessons
+test_lesson = args.test_lesson
+
+truck_speed = args.truck_speed
+
+num_test_trajectories = args.num_test_trajectories
 display_trajectories = args.display_trajectories=="True"
 
-test_lesson = args.test_lesson
-truck_speed = args.truck_speed
 wandb_log = args.wandb_log=="True"
 save_computational_graph = args.save_computational_graph=="True"
+generate_gif = args.generate_gif=="True"
 
 current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
 π = pi
 style.use(['dark_background', 'bmh'])
 
-def create_train_configs(num_lessons):
+def create_train_configs(x_cab_range, y_cab_range_abs, cab_angle_range_abs, cab_trailer_angle_diff_range_abs, num_lessons):
+    num_lessons -= 1
     configs = {}
-    first_x_cab, final_x_cab = train_x_cab_range
-    first_y_cab, final_y_cab = train_y_cab_range_abs
-    first_cab_angle, final_cab_angle = train_cab_angle_range_abs
-    first_cab_trailer_angle_diff, final_cab_trailer_angle_diff = train_cab_trailer_angle_diff_range_abs
-    x_lower = first_x_cab
+    x_cab_first, x_cab_final = x_cab_range
+    y_cab_first, y_cab_final = y_cab_range_abs
+    cab_angle_first, cab_angle_final = cab_angle_range_abs
+    cab_trailer_angle_diff_first, cab_trailer_angle_diff_final = cab_trailer_angle_diff_range_abs
+    x_lower = x_cab_first
 
-    for i in range(1, num_lessons):
-        x_upper = first_x_cab + (final_x_cab - first_x_cab) * (i - 1) / (num_lessons - 1)
-        y_upper = first_y_cab + (final_y_cab - first_y_cab) * (i - 1) / (num_lessons - 1)        
-        θ0_upper = first_cab_angle + (final_cab_angle - first_cab_angle) * (i - 1) / (num_lessons - 1)
-        Δθ_upper = first_cab_trailer_angle_diff + (final_cab_trailer_angle_diff - first_cab_trailer_angle_diff) * (i - 1) / (num_lessons - 1)
+    for i in range(1, num_lessons + 1):
+        x_upper = x_cab_first + (x_cab_final - x_cab_first) * (i - 1) / (num_lessons - 1)
+        y_upper = y_cab_first + (y_cab_final - y_cab_first) * (i - 1) / (num_lessons - 1)        
+        θ0_upper = cab_angle_first + (cab_angle_final - cab_angle_first) * (i - 1) / (num_lessons - 1)
+        Δθ_upper = cab_trailer_angle_diff_first + (cab_trailer_angle_diff_final - cab_trailer_angle_diff_first) * (i - 1) / (num_lessons - 1)
         
         configs[i] = {"x_range": (x_lower, x_upper),
                       "y_range": (-y_upper, y_upper),
                       "θ0_range": (-θ0_upper, θ0_upper),
                       "Δθ_range": (-Δθ_upper, Δθ_upper)}
-        x_lower = x_upper
         
-    configs[num_lessons] = {"x_range": (first_x_cab, x_upper),
-                            "y_range": (-y_upper, y_upper),
-                            "θ0_range": (-θ0_upper, θ0_upper),
-                            "Δθ_range": (-Δθ_upper, Δθ_upper)}
-            
+        x_lower = x_upper
+    
+    configs[num_lessons + 1] = {"x_range": (x_cab_first, x_upper),
+                                "y_range": (-y_upper, y_upper),
+                                "θ0_range": (-θ0_upper, θ0_upper),
+                                "Δθ_range": (-Δθ_upper, Δθ_upper)}
+                    
     return configs
 
-train_configs = create_train_configs(train_num_lessons)
+train_configs = create_train_configs(train_x_cab_range, 
+                                     train_y_cab_range_abs, 
+                                     train_cab_angle_range_abs,
+                                     train_cab_trailer_angle_diff_range_abs, 
+                                     train_num_lessons)
+
 test_config = {"x_range": test_x_cab_range,
                "y_range": test_y_cab_range,
                "θ0_range": test_cab_angle_range,
@@ -115,7 +133,11 @@ class Truck:
         self.display = display
         self.lesson = lesson
         
-        self.box = [0, env_x_range[1], env_y_range[0], env_y_range[1]]
+        self.box = [env_x_range[0], env_x_range[1], env_y_range[0], env_y_range[1]]
+        self.trailer_trajectory = []
+        self.cab_trajectory = []        
+        self.frames = []
+        
         if self.display:
             self.f = figure(figsize=(10, 6), num='The Truck Backer-Upper', facecolor='none')
             self.ax = self.f.add_axes([0.01, 0.01, 0.98, 0.98], facecolor='black')
@@ -123,16 +145,42 @@ class Truck:
                 
             self.ax.axis('equal')
             b = self.box
-            self.ax.axis([b[0] - 1, b[1], b[2], b[3]])
+            self.ax.axis([b[0], b[1], b[2], b[3]])
             self.ax.set_xticks([]); self.ax.set_yticks([])
             self.ax.axhline(); self.ax.axvline()
             
-            plt.ion()  
-            plt.pause(0.001) 
-        
-        self.trailer_trajectory = []
-        self.cab_trajectory = []
-        
+            rectangle_red = patches.Rectangle((train_x_cab_range[0], -train_y_cab_range_abs[1]), train_x_cab_range[1]-train_x_cab_range[0], train_y_cab_range_abs[1] * 2,
+                                              edgecolor = "darkred",     
+                                              facecolor = "none",  
+                                              alpha=1,                 
+                                              linewidth=3)
+            
+            plt.gca().add_patch(rectangle_red)   
+                
+            rectangle_green = patches.Rectangle((env_x_range[0], env_y_range[0]), env_x_range[1] - env_x_range[0], env_y_range[1] - env_y_range[0],
+                                                edgecolor="darkgreen",
+                                                facecolor="none",           
+                                                alpha=1,                 
+                                                linewidth=3)
+            
+            plt.gca().add_patch(rectangle_green)     
+            
+            red_x0 = train_x_cab_range[0]
+            red_y0 = -train_y_cab_range_abs[1]
+            red_width = train_x_cab_range[1] - red_x0
+            red_height = train_y_cab_range_abs[1] * 2
+
+            plt.text(red_x0 + red_width - 0.1, 
+                    red_y0 + red_height - 0.1,
+                    'Training Region',
+                    color='white',
+                    ha='right',
+                    va='top',
+                    fontsize=5,
+                    fontweight='bold')                                    
+                                      
+            plt.scatter(0, 0, marker='x', color="darkgray", s=60, zorder=10, label = "Target")                                  
+            
     def reset(self, ϕ=0, train_test = "train", test_seed = 1):
         self.trailer_trajectory.clear()
         self.cab_trajectory.clear()
@@ -158,7 +206,7 @@ class Truck:
             self.reset(ϕ)
         
         if self.display: 
-            self.draw()        
+            self.draw()      
     
     def step(self, ϕ=0, dt=1):
         
@@ -189,6 +237,9 @@ class Truck:
     def state(self):
         return (self.x, self.y, self.θ0, *self._trailer_xy(), self.θ1)
     
+    def update_state(self, state): 
+        self.ϕ, self.x, self.y, self.θ0, self.θ1 = state.tolist()    
+    
     def _get_atributes(self):
         return (
             self.x, self.y, self.W, self.L, self.d, self.s,
@@ -201,8 +252,7 @@ class Truck:
         
     def is_jackknifed(self):
         x, y, W, L, d, s, θ0, θ1, ϕ = self._get_atributes()   
-        diff_deg = rad2deg(θ0) - rad2deg(θ1) 
-        abs_diff_deg = abs(diff_deg)
+        abs_diff_deg = abs(rad2deg(θ0 - θ1))
         return min(abs_diff_deg,  abs(abs_diff_deg - 360)) > 90
     
     def is_offscreen(self):
@@ -226,7 +276,16 @@ class Truck:
         self._draw_car()
         self._draw_trailer()
         self.f.canvas.draw()
-        plt.pause(0.001)            
+        plt.pause(0.001)
+
+        if generate_gif:
+            buf = BytesIO()
+            self.f.savefig(buf, format='png', facecolor='black')
+            buf.seek(0)
+            image = Image.open(buf).convert("RGBA")  
+            self.frames.append(np.array(image))  
+            buf.close()
+            
             
     def clear(self):
         for p in self.patches:
@@ -370,21 +429,7 @@ class Truck:
                                             linewidth=2)
         
         plt.gca().add_patch(rectangle_green)     
-        
-        green_x0 = env_x_range[0]
-        green_y0 = env_y_range[0]
-        green_width = env_x_range[1] - green_x0
-        green_height = env_y_range[1] - green_y0
 
-        plt.text(green_x0 + green_width - 0.2,  
-                 green_y0 + green_height - 0.2,
-                 'Testing Region',
-                 color='white',
-                 ha='right',
-                 va='top',
-                 fontsize=5,
-                 fontweight='bold')
-        
         plt.scatter(0, 0, marker='x', color="darkgray", s=60, zorder=10, label = "Target") 
         plt.grid(False)
         plt.xticks([])
@@ -409,9 +454,7 @@ class Truck:
         plt.savefig(f'{directory}/trajectory-{test_seed}.png', dpi=300, facecolor='white', bbox_inches='tight')  
         if display_trajectories==False:
             plt.close()    
-        
-    def update_state(self, state): 
-        self.ϕ, self.x, self.y, self.θ0, self.θ1 = state.tolist()
+    
         
 def generate_random_deg(mean = 0, std = 35, lower_bound = -70, upper_bound = 70):     
     a = (lower_bound - mean) / std
@@ -551,7 +594,9 @@ def train_controller(lesson,
     truck = Truck(lesson, display=False)
     
     for i in tqdm(range(epochs)):
-        truck.reset()
+        random_deg = generate_random_deg()
+        ϕ = deg2rad(random_deg) 
+        truck.reset(ϕ = ϕ)
         x, y, θ0, _, _, θ1 = truck.state()
         ϕ = truck.ϕ
         ϕ_state = torch.tensor([ϕ, x, y, θ0, θ1], dtype=torch.float32)
@@ -569,7 +614,7 @@ def train_controller(lesson,
         loss.backward()
         
         torch.nn.utils.clip_grad_norm_(parameters = controller.parameters(),               
-                                       max_norm = 5, 
+                                       max_norm = 10, 
                                        error_if_nonfinite = True)        
         
         if wandb_log:
@@ -608,7 +653,7 @@ if train_emulator_flag:
         print(" Lesson {}:".format(lesson))
         emulator = train_emulator(lesson = lesson,
                                   emulator = emulator,
-                                  episodes = 10_000,
+                                  episodes = 20_000,
                                   learning_rate = 0.00001)
         print()
         
@@ -638,8 +683,10 @@ truck = Truck(lesson = test_lesson, display = True)
 num_jackknifes = 0
 for test_seed in range(1, num_test_trajectories + 1):
     with torch.no_grad():
-        truck.reset(train_test = "test", test_seed = test_seed)    
-        ϕ = torch.tensor([truck.ϕ])
+        random_deg = generate_random_deg()
+        ϕ = deg2rad(random_deg) 
+        truck.reset(ϕ = ϕ, train_test = "test", test_seed = test_seed)    
+        ϕ = torch.tensor([truck.ϕ], dtype=torch.float32)
         i = 0
         while truck.valid():
             x, y, θ0, _, _, θ1 = truck.state()
@@ -658,3 +705,17 @@ for test_seed in range(1, num_test_trajectories + 1):
         print(f"Trailer x: {trailer_x:.3f}, Trailer y: {trailer_y:.3f}")
         print()
 print(f"Number of Jackknifes: {num_jackknifes}")
+
+if generate_gif:
+    current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
+    gif_path = f'./gifs/lesson-{test_lesson}-{current_time}.gif'
+    temp_path = f'./gifs/lesson-{test_lesson}-{current_time}-temp.gif'
+
+    with imageio.get_writer(gif_path, mode='I', duration=0.1) as writer:
+        for frame_array in truck.frames:
+            writer.append_data(frame_array)
+
+    with open(temp_path, "wb") as out_file:
+        subprocess.run(["gifsicle", "-O3", "--colors", "256", "--delay=2", gif_path], stdout=out_file, check=True)
+
+    os.replace(temp_path, gif_path)

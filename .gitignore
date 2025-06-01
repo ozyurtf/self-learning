@@ -2,12 +2,7 @@
 /wandb
 /.ipynb_checkpoints
 .DS_Store
-venv
-truck-backer-upper-test.ipynb
-truck-backer-upper-batch.ipynb
-truck-backer-upper.ipynb
-comparison
-comparison_output
+*.ipynb
 .metals
 .vscode
 self-learning.py
