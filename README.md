@@ -12,11 +12,11 @@
 
 ## Simulation Before Training 
 
-<img src="gifs/lesson-0-2025-06-01_01-49AM.gif" alt="Simulation Before Training" width="600">
+![Simulation Before Training](gifs/lesson-0-2025-06-01_02-22PM.gif)
 
 ## Simulation After Training
 
-<img src="gifs/lesson-10-2025-06-01_01-51AM.gif" alt="Simulation After Training" width="600">
+![Simulation After Training](gifs/lesson-10-2025-06-01_02-25PM.gif)
 
 
 ## Trajectories
@@ -43,6 +43,11 @@
 
 ## Run the Simulation
 
+Install `gifscale` to generate GIFs (Optinal). 
+
+```bash
+brew install gifsicle
+```
 
 Create and activate the conda environment with:
 

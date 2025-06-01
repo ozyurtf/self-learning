@@ -14,6 +14,7 @@ import matplotlib.style as style
 import os
 import shutil
 import argparse
+
 import imageio
 import subprocess
 from io import BytesIO
@@ -139,7 +140,7 @@ class Truck:
         self.frames = []
         
         if self.display:
-            self.f = figure(figsize=(10, 5), dpi = 100, num='The Truck Backer-Upper', facecolor='none')
+            self.f = figure(figsize=(8, 5), dpi = 120, num='The Truck Backer-Upper', facecolor='none')
             self.ax = self.f.add_axes([0.01, 0.01, 0.98, 0.98], facecolor='black')
             self.patches = list()
                 
@@ -272,7 +273,7 @@ class Truck:
 
         if generate_gif:
             buf = BytesIO()
-            self.f.savefig(buf, format='png', facecolor='black')
+            self.f.savefig(buf, format='png', facecolor='black', dpi=300)
             buf.seek(0)
             image = Image.open(buf).convert("RGBA")  
             self.frames.append(np.array(image))  
@@ -404,14 +405,14 @@ class Truck:
         red_width = train_x_cab_range[1] - red_x0
         red_height = train_y_cab_range_abs[1] * 2
 
-        plt.text(red_x0 + red_width - 0.2, 
-                 red_y0 + red_height - 0.2,
-                 'Training Region',
-                 color='white',
-                 ha='right',
-                 va='top',
-                 fontsize=5,
-                 fontweight='bold')
+        plt.text(red_x0 + red_width - 0.1, 
+                red_y0 + red_height - 0.1,
+                'Training Region',
+                color='white',
+                ha='right',
+                va='top',
+                fontsize=5,
+                fontweight='bold')    
 
                 
         rectangle_green = patches.Rectangle((env_x_range[0], env_y_range[0]), env_x_range[1] - env_x_range[0], env_y_range[1] - env_y_range[0],

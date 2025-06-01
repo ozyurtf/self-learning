@@ -70,3 +70,6 @@ dependencies:
       - typing-inspection==0.4.0
       - urllib3==2.4.0
       - wandb==0.19.10
+      - Pillow==11.2.1
+      - imageio==2.37.0
+
