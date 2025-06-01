@@ -16,7 +16,7 @@
 
 ## Simulation After Training
 
-<img src="gifs/lesson-10-2025-06-01_01-51AM.gif" alt="Simulation After Training">
+<img src="gifs/lesson-10-2025-06-01_01-51AM.gif" alt="Simulation After Training" width="600">
 
 
 ## Trajectories
