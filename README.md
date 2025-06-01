@@ -12,11 +12,11 @@
 
 ## Simulation Before Training 
 
-<img src="gifs/lesson-0-2025-06-01_01-41AM.gif" width="75%" alt="Simulation Before Training">
+<img src="gifs/lesson-0-2025-06-01_01-41AM.gif" alt="Simulation Before Training">
 
 ## Simulation After Training
 
-<img src="gifs/lesson-10-2025-06-01_01-39AM.gif" width="75%" alt="Simulation After Training">
+<img src="gifs/lesson-10-2025-06-01_01-39AM.gif" alt="Simulation After Training">
 
 
 ## Trajectories
@@ -42,7 +42,6 @@
 ![Trajectory 10](trajectories/lesson-10/trajectory-10.png)
 
 ## Run the Simulation
-
 
 
 Create and activate the conda environment with:
