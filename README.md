@@ -47,7 +47,6 @@ Install `gifscale` to generate GIFs (Optinal).
 
 ```bash
 brew install gifsicle
-```
 
 Create and activate the conda environment with:
 

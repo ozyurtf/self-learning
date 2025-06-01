@@ -14,7 +14,6 @@ import matplotlib.style as style
 import os
 import shutil
 import argparse
-
 import imageio
 import subprocess
 from io import BytesIO
@@ -530,7 +529,7 @@ def train_emulator(emulator,
     
     global_step = 0
     for i in torch.randperm(len(train_inputs)): 
-        ϕ_state = train_inputs[ i]
+        ϕ_state = train_inputs[i]
         
         next_state_prediction = emulator(ϕ_state)
         next_state = train_outputs[i]
@@ -709,6 +708,6 @@ if generate_gif:
             writer.append_data(frame_array)
 
     with open(temp_path, "wb") as out_file:
-        subprocess.run(["gifsicle", "-O3", "--colors", "256", "--delay=2", gif_path], stdout=out_file, check=True)
+        subprocess.run(["gifsicle", "-O3", "--colors", "256", "--delay=1", gif_path], stdout=out_file, check=True)
 
     os.replace(temp_path, gif_path)
