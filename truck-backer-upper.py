@@ -138,7 +138,7 @@ class Truck:
         self.gif = gif
         
         if self.display:
-            self.f = figure(figsize=(10, 6), dpi = 120, num='The Truck Backer-Upper', facecolor='none')
+            self.f = figure(figsize=(9, 5), dpi = 100, num='The Truck Backer-Upper', facecolor='none')
             self.ax = self.f.add_axes([0.01, 0.01, 0.98, 0.98], facecolor='black')
             self.patches = list()
                 
@@ -448,15 +448,9 @@ class Truck:
 
     def generate_gif(self):
         gif_path = f'./gifs/lesson-{self.lesson}-{current_time}.gif'
-        temp_path = f'./gifs/lesson-{self.lesson}-{current_time}-temp.gif'
-        
-        with imageio.get_writer(gif_path, mode='I', duration=0.05, loop=0) as writer:
+        with imageio.get_writer(gif_path, mode='I', fps=50, loop=0) as writer:
             for frame_array in self.frames:
                 writer.append_data(frame_array)
-        
-        with open(temp_path, "wb") as out_file:
-            subprocess.run(["gifsicle", "-O3", "--delay=2", gif_path], stdout=out_file, check=True)  # 0.02 seconds per frame
-        os.replace(temp_path, gif_path)
     
 def generate_random_deg(mean = 0, std = 35, lower_bound = -70, upper_bound = 70):     
     a = (lower_bound - mean) / std
