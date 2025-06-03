@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser(description="Training/Testing Code of Truck Bac
 
 parser.add_argument("--env_x_range", type=int, nargs=2, default = (0, 40), required=False)
 parser.add_argument("--env_y_range", type=int, nargs=2, default = (-15, 15), required=False)
+parser.add_argument("--truck_speed", type=float, default = -0.1, required=False)
 
 parser.add_argument("--train_emulator", type=str, default = "False", required=False)
 parser.add_argument("--train_controller", type=str, default = "False", required=False)
@@ -39,15 +40,11 @@ parser.add_argument("--test_cab_trailer_angle_diff_range", type=int, nargs=2, de
 
 parser.add_argument("--train_num_lessons", type=int, default = 10, required=False)
 parser.add_argument("--test_lesson", type=int, default = 10, required=False)
-
-parser.add_argument("--truck_speed", type=float, default = -0.1, required=False)
-
 parser.add_argument("--num_test_trajectories", type=int, default = 10, required=False)
-parser.add_argument("--display_trajectories", type=str, default = "False", required=False)
 
 parser.add_argument("--wandb_log", type=str, default = "False", required = False)
 parser.add_argument("--save_computational_graph", type=str, default = "False", required=False)
-parser.add_argument("--generate_gif", type=str, default = "False", required=False)
+parser.add_argument("--gif", type=str, default = "False", required=False)
 
 args = parser.parse_args()
 
@@ -73,13 +70,11 @@ test_lesson = args.test_lesson
 truck_speed = args.truck_speed
 
 num_test_trajectories = args.num_test_trajectories
-display_trajectories = args.display_trajectories=="True"
 
 wandb_log = args.wandb_log=="True"
 save_computational_graph = args.save_computational_graph=="True"
-generate_gif = args.generate_gif=="True"
+gif = args.gif=="True"
 
-current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
 π = pi
 style.use(['dark_background', 'bmh'])
 
@@ -123,8 +118,10 @@ test_config = {"x_range": test_x_cab_range,
                "θ0_range": test_cab_angle_range,
                "Δθ_range": test_cab_trailer_angle_diff_range}
 
+current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
+
 class Truck:
-    def __init__(self, lesson, display=False):
+    def __init__(self, lesson, display=False, gif=False):
 
         self.W = 1 
         self.L = 1 * self.W 
@@ -136,10 +133,12 @@ class Truck:
         self.box = [env_x_range[0], env_x_range[1], env_y_range[0], env_y_range[1]]
         self.trailer_trajectory = []
         self.cab_trajectory = []        
+        self.frame_num = 0
         self.frames = []
+        self.gif = gif
         
         if self.display:
-            self.f = figure(figsize=(8, 5), dpi = 120, num='The Truck Backer-Upper', facecolor='none')
+            self.f = figure(figsize=(10, 6), dpi = 120, num='The Truck Backer-Upper', facecolor='none')
             self.ax = self.f.add_axes([0.01, 0.01, 0.98, 0.98], facecolor='black')
             self.patches = list()
                 
@@ -269,16 +268,17 @@ class Truck:
         self._draw_trailer()
         self.f.canvas.draw()
         plt.pause(0.001)
-
-        if generate_gif:
+        
+        if self.gif:
             buf = BytesIO()
             self.f.savefig(buf, format='png', facecolor='black', dpi=300)
             buf.seek(0)
             image = Image.open(buf).convert("RGBA")  
-            self.frames.append(np.array(image))  
+            self.frames.append(np.array(image))
             buf.close()
             
-            
+        self.frame_num += 1
+        
     def clear(self):
         for p in self.patches:
             p.remove()
@@ -333,7 +333,6 @@ class Truck:
                                          ax.transData))
 
         ax.add_patch(trailer)
-        
         self.patches += [trailer]
 
     def _draw_trajectories(self, test_seed): 
@@ -432,22 +431,34 @@ class Truck:
             spine.set_color('#cccccc')
         
         plt.tick_params(axis='both', which='major', labelsize=8, pad=4, colors='#555555')
-        
         plt.tight_layout()
         plt.subplots_adjust(right=0.78)
         
-        directory = f'trajectories/lesson-{self.lesson}'
+        directory = f'trajectories/lesson-{self.lesson}-{current_time}'
         
         if not os.path.exists(directory):
             os.makedirs(directory)  
-            
+        
+        trajectory_path = f'{directory}/trajectory-{test_seed}.png'
+        
         fig = plt.gcf() 
         fig.patch.set_facecolor('white')      
-        plt.savefig(f'{directory}/trajectory-{test_seed}.png', dpi=300, facecolor='white', bbox_inches='tight')  
-        if display_trajectories==False:
-            plt.close()    
+        plt.savefig(trajectory_path, dpi=300, facecolor='white', bbox_inches='tight')  
+        plt.close()    
+
+    def generate_gif(self):
+        gif_path = f'./gifs/lesson-{self.lesson}-{current_time}.gif'
+        temp_path = f'./gifs/lesson-{self.lesson}-{current_time}-temp.gif'
+
+        with imageio.get_writer(gif_path, mode='I', duration=0.01, loop = 0) as writer:
+            for frame_array in self.frames:
+                writer.append_data(frame_array)
+
+        with open(temp_path, "wb") as out_file:
+            subprocess.run(["gifsicle", "-O3", gif_path], stdout=out_file, check=True)
+
+        os.replace(temp_path, gif_path)        
     
-        
 def generate_random_deg(mean = 0, std = 35, lower_bound = -70, upper_bound = 70):     
     a = (lower_bound - mean) / std
     b = (upper_bound - mean) / std
@@ -670,7 +681,7 @@ if train_controller_flag:
         print()
 
 test_controller = torch.load('models/controllers/controller_lesson_{}.pth'.format(test_lesson), weights_only = False)
-truck = Truck(lesson = test_lesson, display = True)
+truck = Truck(lesson = test_lesson, display = True, gif = gif)
 
 num_jackknifes = 0
 for test_seed in range(1, num_test_trajectories + 1):
@@ -697,17 +708,5 @@ for test_seed in range(1, num_test_trajectories + 1):
         print(f"Trailer x: {trailer_x:.3f}, Trailer y: {trailer_y:.3f}")
         print()
 print(f"Number of Jackknifes: {num_jackknifes}")
-
-if generate_gif:
-    current_time = datetime.now().strftime("%Y-%m-%d_%I-%M%p")
-    gif_path = f'./gifs/lesson-{test_lesson}-{current_time}.gif'
-    temp_path = f'./gifs/lesson-{test_lesson}-{current_time}-temp.gif'
-
-    with imageio.get_writer(gif_path, mode='I', duration=0.1) as writer:
-        for frame_array in truck.frames:
-            writer.append_data(frame_array)
-
-    with open(temp_path, "wb") as out_file:
-        subprocess.run(["gifsicle", "-O3", "--colors", "256", "--delay=1", gif_path], stdout=out_file, check=True)
-
-    os.replace(temp_path, gif_path)
+if truck.gif:
+    truck.generate_gif()
