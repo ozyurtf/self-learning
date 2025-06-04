@@ -434,7 +434,7 @@ class Truck:
         
         trajectory_path = f'{directory}/trajectory-{test_seed}.png'
         
-        plt.savefig(trajectory_path, dpi=100, facecolor='white', bbox_inches='tight')  
+        plt.savefig(trajectory_path, dpi=300, facecolor='white', bbox_inches='tight')  
         plt.close()    
 
     def generate_gif(self):
