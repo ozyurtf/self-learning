@@ -12,11 +12,11 @@
 
 ## Simulation Before Training 
 
-<!-- ![Simulation Before Training](gifs/lesson-0-2025-06-03_09-30PM.gif) -->
+![Simulation Before Training](gifs/lesson-0-2025-06-03_09-30PM.gif)
 
 ## Simulation After Training
 
-<!-- ![Simulation After Training](gifs/lesson-10-2025-06-03_09-13PM.gif) -->
+![Simulation After Training](gifs/lesson-10-2025-06-03_09-13PM.gif)
 
 ## Simulation Beyond Training Boundaries
 

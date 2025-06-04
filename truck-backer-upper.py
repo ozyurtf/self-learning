@@ -439,7 +439,7 @@ class Truck:
 
     def generate_gif(self):
         gif_path = f'./gifs/lesson-{self.lesson}-{current_time}.gif'
-        with imageio.get_writer(gif_path, mode='I', fps=50, loop=0) as writer:
+        with imageio.get_writer(gif_path, mode='I', fps=20, loop=0) as writer:
             for frame_array in self.frames:
                 writer.append_data(frame_array)
     
