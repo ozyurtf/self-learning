@@ -148,7 +148,12 @@ class Truck:
             self.ax.set_xticks([]); self.ax.set_yticks([])
             self.ax.axhline(); self.ax.axvline()
             
-            rectangle_red = patches.Rectangle((train_x_cab_range[0], -train_y_cab_range_abs[1]), train_x_cab_range[1]-train_x_cab_range[0], train_y_cab_range_abs[1] * 2,
+            red_x0 = train_x_cab_range[0]
+            red_y0 = -train_y_cab_range_abs[1]
+            red_width = train_x_cab_range[1] - red_x0
+            red_height = train_y_cab_range_abs[1]*2
+            
+            rectangle_red = patches.Rectangle((red_x0, red_y0), red_width, red_height,
                                               edgecolor = "darkred",     
                                               facecolor = "none",  
                                               alpha=1,                 
@@ -156,11 +161,6 @@ class Truck:
             
             plt.gca().add_patch(rectangle_red)   
                             
-            red_x0 = train_x_cab_range[0]
-            red_y0 = -train_y_cab_range_abs[1]
-            red_width = train_x_cab_range[1] - red_x0
-            red_height = train_y_cab_range_abs[1] * 2
-
             plt.text(red_x0 + red_width - 0.1, 
                     red_y0 + red_height - 0.1,
                     'Training Region',
@@ -206,7 +206,7 @@ class Truck:
             return
         
         if self.is_offscreen():
-            print('The car or trailer is off screen')
+            print('The cab or trailer is off screen')
             return
         
         self.ϕ = ϕ
@@ -264,7 +264,7 @@ class Truck:
     def draw(self):
         if not self.display: return
         if self.patches: self.clear()
-        self._draw_car()
+        self._draw_cab()
         self._draw_trailer()
         self.f.canvas.draw()
         plt.pause(0.001)
@@ -284,7 +284,7 @@ class Truck:
             p.remove()
         self.patches = list()
         
-    def _draw_car(self):
+    def _draw_cab(self):
         x, y, W, L, d, s, θ0, θ1, ϕ = self._get_atributes()
 
         ax = self.ax
@@ -293,7 +293,7 @@ class Truck:
         bar = Line2D((x, x1), (y, y1), lw=5, color='C2', alpha=1)
         ax.add_line(bar)
 
-        car = Rectangle((x1, y1 - W / 2),   
+        cab = Rectangle((x1, y1 - W / 2),   
                         L,                  
                         W,                  
                         color='C2',        
@@ -301,7 +301,7 @@ class Truck:
                         transform=(matplotlib.transforms.Affine2D().rotate_deg_around(x1, y1, rad2deg(θ0)) +
                                    ax.transData))
 
-        ax.add_patch(car)
+        ax.add_patch(cab)
 
         x2, y2 = x1 + L / 2 ** 0.5 * cos(θ0 + π / 4), y1 + L / 2 ** 0.5 * sin(θ0 + π / 4)
         left_wheel = Line2D(
@@ -317,7 +317,7 @@ class Truck:
             lw=3, color='C5', alpha=1)
         ax.add_line(right_wheel)
         
-        self.patches += [car, bar, left_wheel, right_wheel]
+        self.patches += [cab, bar, left_wheel, right_wheel]
         
     def _draw_trailer(self):
         x, y, W, L, d, s, θ0, θ1, ϕ = self._get_atributes()    
@@ -336,6 +336,9 @@ class Truck:
         self.patches += [trailer]
 
     def _draw_trajectories(self, test_seed): 
+        
+        trailer_color = '#1f77b4'  
+        cab_color = '#ff7f0e'              
                         
         x_trailer_trajectory = [point[0] for point in self.trailer_trajectory]
         y_trailer_trajectory = [point[1] for point in self.trailer_trajectory]
@@ -343,12 +346,29 @@ class Truck:
         x_cab_trajectory = [point[0] for point in self.cab_trajectory]
         y_cab_trajectory = [point[1] for point in self.cab_trajectory]
         
-        style.use('seaborn-v0_8-whitegrid') 
+        red_x0 = train_x_cab_range[0]
+        red_y0 = -train_y_cab_range_abs[1]
+        red_width = train_x_cab_range[1] - red_x0
+        red_height = train_y_cab_range_abs[1]*2
+        
+        green_x0 = self.box[0]
+        green_y0 = self.box[2]
+        green_width = self.box[1] - self.box[0]
+        green_height = self.box[3] - self.box[2]                 
+
+        rectangle_red = patches.Rectangle((red_x0, red_y0), red_width, red_height,
+                                          facecolor='red',           
+                                          edgecolor='darkred',       
+                                          alpha=0.3,                 
+                                          linewidth=2)          
+                
+        rectangle_green = patches.Rectangle((green_x0, green_y0), green_width, green_height,
+                                            facecolor='green',           
+                                            edgecolor='darkgreen',       
+                                            alpha=0.3,                 
+                                            linewidth=2)                     
         
         plt.figure(figsize=(7.5, 3), dpi=100) 
-        
-        trailer_color = '#1f77b4'  
-        cab_color = '#ff7f0e'      
         
         plt.plot(x_trailer_trajectory, y_trailer_trajectory, 
                  color=trailer_color, linestyle='-', linewidth=1.5, alpha=0.8)
@@ -378,7 +398,6 @@ class Truck:
                    marker='x', color=cab_color, s=60, zorder=10,
                    label='Cab End Position')
         
-        
         plt.plot([x_trailer_trajectory[0], x_cab_trajectory[0]], 
                  [y_trailer_trajectory[0], y_cab_trajectory[0]], 
                  'k--', linewidth=1.5) 
@@ -387,52 +406,26 @@ class Truck:
                  [y_trailer_trajectory[-1], y_cab_trajectory[-1]], 
                  'k--', linewidth=1.5)
         
-        plt.xlim(env_x_range[0], env_x_range[1])
-        plt.ylim(env_y_range[0], env_y_range[1])
-
-        rectangle_red = patches.Rectangle((train_x_cab_range[0], -train_y_cab_range_abs[1]), train_x_cab_range[1]-train_x_cab_range[0], train_y_cab_range_abs[1] * 2,
-                                            facecolor='red',           
-                                            edgecolor='darkred',       
-                                            alpha=0.3,                 
-                                            linewidth=2)
+        plt.gca().add_patch(rectangle_red) 
+        plt.gca().add_patch(rectangle_green)
         
-        plt.gca().add_patch(rectangle_red)     
-        
-        red_x0 = train_x_cab_range[0]
-        red_y0 = -train_y_cab_range_abs[1]
-        red_width = train_x_cab_range[1] - red_x0
-        red_height = train_y_cab_range_abs[1] * 2
-
         plt.text(red_x0 + red_width - 0.1, 
-                red_y0 + red_height - 0.1,
-                'Training Region',
-                color='white',
-                ha='right',
-                va='top',
-                fontsize=5,
-                fontweight='bold')    
-
-                
-        rectangle_green = patches.Rectangle((env_x_range[0], env_y_range[0]), env_x_range[1] - env_x_range[0], env_y_range[1] - env_y_range[0],
-                                            facecolor='green',           
-                                            edgecolor='darkgreen',       
-                                            alpha=0.3,                 
-                                            linewidth=2)
-        
-        plt.gca().add_patch(rectangle_green)     
+                 red_y0 + red_height - 0.1,
+                 'Training Region',
+                 color='white',
+                 ha='right',
+                 va='top',
+                 fontsize=5,
+                 fontweight='bold')    
 
         plt.scatter(0, 0, marker='x', color="darkgray", s=60, zorder=10, label = "Target") 
-        plt.grid(False)
-        plt.xticks([])
-        plt.yticks([])
-        
-        for spine in plt.gca().spines.values():
-            spine.set_linewidth(0.5)
-            spine.set_color('#cccccc')
-        
-        plt.tick_params(axis='both', which='major', labelsize=8, pad=4, colors='#555555')
         plt.tight_layout()
         plt.subplots_adjust(right=0.78)
+        plt.xticks([])
+        plt.yticks([])        
+        plt.xlim(self.box[0], self.box[1])
+        plt.ylim(self.box[2], self.box[3])  
+        plt.grid(False)      
         
         directory = f'trajectories/lesson-{self.lesson}-{current_time}'
         
@@ -441,8 +434,6 @@ class Truck:
         
         trajectory_path = f'{directory}/trajectory-{test_seed}.png'
         
-        fig = plt.gcf() 
-        fig.patch.set_facecolor('white')      
         plt.savefig(trajectory_path, dpi=300, facecolor='white', bbox_inches='tight')  
         plt.close()    
 

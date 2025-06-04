@@ -12,34 +12,37 @@
 
 ## Simulation Before Training 
 
-![Simulation Before Training](gifs/lesson-0-2025-06-03_01-59AM.gif)
+![Simulation Before Training](gifs/lesson-0-2025-06-03_09-30PM.gif)
 
 ## Simulation After Training
 
-![Simulation After Training](gifs/lesson-10-2025-06-03_02-00AM.gif)
+![Simulation After Training](gifs/lesson-10-2025-06-03_09-13PM.gif)
 
+## Simulation Beyond Training Boundaries
+
+![Simulation Beyond Training Boundaries](gifs/lesson-10-2025-06-03_09-36PM.gif)
 
 ## Trajectories
 
-![Trajectory 1](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-1.png)
+![Trajectory 1](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-1.png)
 
-![Trajectory 2](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-2.png)
+![Trajectory 2](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-2.png)
 
-![Trajectory 2](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-3.png)
+![Trajectory 2](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-3.png)
 
-![Trajectory 4](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-4.png)
+![Trajectory 4](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-4.png)
 
-![Trajectory 5](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-5.png)
+![Trajectory 5](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-5.png)
 
-![Trajectory 6](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-6.png)
+![Trajectory 6](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-6.png)
 
-![Trajectory 7](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-7.png)
+![Trajectory 7](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-7.png)
 
-![Trajectory 8](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-8.png)
+![Trajectory 8](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-8.png)
 
-![Trajectory 9](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-9.png)
+![Trajectory 9](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-9.png)
 
-![Trajectory 10](trajectories/lesson-10-2025-06-03_02-00AM/trajectory-10.png)
+![Trajectory 10](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-10.png)
 
 ## Run the Simulation
 
