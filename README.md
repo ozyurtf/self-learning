@@ -12,37 +12,37 @@
 
 ## Simulation Before Training 
 
-![Simulation Before Training](gifs/lesson-0-2025-06-03_09-30PM.gif)
+![Simulation Before Training](gifs/lesson-0-2025-06-04_01-56AM.gif)
 
 ## Simulation After Training
 
-![Simulation After Training](gifs/lesson-10-2025-06-03_09-13PM.gif)
+![Simulation After Training](gifs/lesson-10-2025-06-04_01-57AM.gif)
 
 ## Simulation Beyond Training Boundaries
 
-![Simulation Beyond Training Boundaries](gifs/lesson-10-2025-06-03_09-36PM.gif)
+![Simulation Beyond Training Boundaries](gifs/lesson-10-2025-06-04_02-09AM.gif)
 
 ## Trajectories
 
-![Trajectory 1](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-1.png)
+![Trajectory 1](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-1.png)
 
-![Trajectory 2](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-2.png)
+![Trajectory 2](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-2.png)
 
-![Trajectory 2](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-3.png)
+![Trajectory 2](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-3.png)
 
-![Trajectory 4](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-4.png)
+![Trajectory 4](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-4.png)
 
-![Trajectory 5](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-5.png)
+![Trajectory 5](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-5.png)
 
-![Trajectory 6](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-6.png)
+![Trajectory 6](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-6.png)
 
-![Trajectory 7](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-7.png)
+![Trajectory 7](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-7.png)
 
-![Trajectory 8](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-8.png)
+![Trajectory 8](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-8.png)
 
-![Trajectory 9](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-9.png)
+![Trajectory 9](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-9.png)
 
-![Trajectory 10](trajectories/lesson-10-2025-06-03_09-36PM/trajectory-10.png)
+![Trajectory 10](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-10.png)
 
 ## Run the Simulation
 
@@ -67,8 +67,8 @@ To test the models outside the training region, run:
 python truck-backer-upper.py\
     --env_x_range 0 100\
     --env_y_range -30 30\
-    --test_x_cab_range 10 90\
-    --test_y_cab_range -20 20
+    --test_x_cab_range 40 90\
+    --test_y_cab_range -25 25
 ```
 
 To train both emulator and controller models, run:

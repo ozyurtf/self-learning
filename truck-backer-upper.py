@@ -439,9 +439,13 @@ class Truck:
 
     def generate_gif(self):
         gif_path = f'./gifs/lesson-{self.lesson}-{current_time}.gif'
-        with imageio.get_writer(gif_path, mode='I', fps=20, loop=0) as writer:
-            for frame_array in self.frames:
+        with imageio.get_writer(gif_path, mode='I', fps=50, loop=0) as writer:
+            for frame_array in self.frames[::2]:
                 writer.append_data(frame_array)
+        
+        optimized_path = gif_path.replace(".gif", "-optimized.gif")
+        subprocess.run(["gifsicle", "-O3", "--colors", "256", gif_path, "-o", optimized_path], check=True)
+        os.replace(optimized_path, gif_path)  
     
 def generate_random_deg(mean = 0, std = 35, lower_bound = -70, upper_bound = 70):     
     a = (lower_bound - mean) / std
