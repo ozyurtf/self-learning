@@ -1,3 +1,5 @@
+**Note**: This project was developed as part of a challenge project suggested by Dr. Alfredo Canziani in my Deep Learning course at New York University. I took the initial code that sets up a simulated environment, an agent (truck), and the agent’s dynamics within the environment from [here]([url](https://github.com/Atcold/NYU-DLSP20/blob/master/14-truck_backer_upper.ipynb)) and I built/trained two models that learn to back up the agent to the target position on their own. The training process, the agent's behavior before and after the training, and the instructions for how to run the code are explained below.
+
 ## Truck Kinematics 
 
 ![Truck](figures/truck-kinematics.png)
