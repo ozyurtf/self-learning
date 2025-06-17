@@ -84,3 +84,8 @@ To train only controller models, run:
 ```bash
 python truck-backer-upper.py --train_controller True 
 ```
+# References
+
+- Nguyen, D., & Widrow, B. (1989). *The truck backer-upper: an example of self-learning in neural networks*. In International 1989 Joint Conference on Neural Networks (pp. 357–363, vol. 2). [https://doi.org/10.1109/IJCNN.1989.118723](https://doi.org/10.1109/IJCNN.1989.118723)
+
+- Schoenauer, M., & Ronald, E. (1994). *Neuro-genetic truck backer-upper controller*. In Proceedings of the First IEEE Conference on Evolutionary Computation. IEEE World Congress on Computational Intelligence (pp. 720–723, vol. 2). [https://doi.org/10.1109/ICEC.1994.349969](https://doi.org/10.1109/ICEC.1994.349969)
