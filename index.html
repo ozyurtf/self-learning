@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truck Backer-Upper — Self-Learning Neural Network</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+      border-bottom: 1px solid #21262d;
+      padding: 56px 24px 48px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #e6edf3;
+      margin-bottom: 14px;
+    }
+
+    header p {
+      max-width: 680px;
+      margin: 0 auto;
+      color: #8b949e;
+      font-size: 1.05rem;
+    }
+
+    .badge-row {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      color: #8b949e;
+      letter-spacing: 0.3px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+    }
+
+    .video-section {
+      margin-bottom: 64px;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: #58a6ff;
+      margin-bottom: 16px;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      background: #010409;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #21262d;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .description {
+      margin-bottom: 64px;
+    }
+
+    .description h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #e6edf3;
+      margin-bottom: 12px;
+    }
+
+    .description p {
+      color: #8b949e;
+      font-size: 0.97rem;
+      margin-bottom: 14px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 64px;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 22px 20px;
+    }
+
+    .card-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #58a6ff;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 0.88rem;
+      color: #8b949e;
+      line-height: 1.6;
+    }
+
+    footer {
+      border-top: 1px solid #21262d;
+      padding: 28px 24px;
+      text-align: center;
+    }
+
+    footer a {
+      color: #58a6ff;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    footer span { color: #484f58; margin: 0 10px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Truck Backer-Upper</h1>
+  <p>A self-learning neural network agent that backs a truck-trailer to a loading dock using curriculum learning — no labeled data, no supervision.</p>
+  <div class="badge-row">
+    <span class="badge">PyTorch</span>
+    <span class="badge">Curriculum Learning</span>
+    <span class="badge">World Model</span>
+    <span class="badge">Three.js 3D Viewer</span>
+    <span class="badge">NYU Deep Learning</span>
+  </div>
+</header>
+
+<main>
+
+  <div class="video-section">
+    <div class="section-label">3D Demo</div>
+    <div class="video-wrapper">
+      <iframe
+        src="https://www.youtube.com/embed/pzDoJCvebyc?si=7p2tM6pdaRrGfdXb"
+        title="Truck Backer-Upper 3D Demo"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+
+  <div class="description">
+    <h2>How it works</h2>
+    <p>
+      Two neural networks collaborate: an <strong style="color:#e6edf3">Emulator</strong> that learns to predict the next truck state given a steering action, and a <strong style="color:#e6edf3">Controller</strong> that learns which action to take at each step. The controller is trained by backpropagating through the frozen emulator — no environment interaction is needed during controller training.
+    </p>
+    <p>
+      Both models are trained progressively through 10 curriculum lessons, starting with the truck nearly aligned and close to the target, and gradually expanding to arbitrary starting positions and angles. By lesson 10, the agent navigates successfully even from positions it has never seen during training.
+    </p>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">Emulator</div>
+      <p>Forward model predicting the next cab and trailer state (x, y, θ₀, θ₁) from the current state and steering angle φ.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Controller</div>
+      <p>Policy network that outputs the steering angle at each step. Trained end-to-end through the emulator without any labeled demonstrations.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Curriculum Learning</div>
+      <p>10 progressively harder lessons — expanding x range, lateral offset, cab angle, and cab-trailer angle difference across lessons.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">3D Viewer</div>
+      <p>Interactive Three.js scene replaying learned trajectories with free camera, follow-cam, training zone overlay, and a detailed loading dock.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <a href="https://github.com/ozyurtf/truck-backer-upper-3d">View on GitHub</a>
+  <span>|</span>
+  <a href="https://github.com/ozyurtf/truck-backer-upper-3d#run-the-3d-simulation">Run the 3D Simulation</a>
+</footer>
+
+</body>
+</html>

@@ -13,6 +13,10 @@
 
 ![Truck](figures/controller-training.png)
 
+## 3D Demo
+
+[![3D Demo](https://img.youtube.com/vi/pzDoJCvebyc/maxresdefault.jpg)](https://www.youtube.com/watch?v=pzDoJCvebyc)
+
 ## Simulation Before Training 
 
 ![Simulation Before Training](gifs/lesson-0-2025-06-04_01-56AM.gif)
@@ -83,8 +87,50 @@ python truck-backer-upper.py --train_emulator True
 To train only controller models, run:
 
 ```bash
-python truck-backer-upper.py --train_controller True 
+python truck-backer-upper.py --train_controller True
 ```
+
+## Run the 3D Simulation
+
+The 3D interactive viewer generates a self-contained HTML file that opens in your browser. It replays the learned trajectories in a Three.js scene with a free camera, follow-cam mode, and a labeled training zone.
+
+First, make sure the conda environment is active (see above). Then run:
+
+```bash
+python simulate_3d.py
+```
+
+This loads the trained controller (`models/controllers/controller_lesson_10.pth`), simulates 15 trajectories, writes `simulation_3d.html`, and opens it automatically.
+
+**Controls inside the viewer:**
+
+| Input | Action |
+|---|---|
+| Left-drag | Orbit camera |
+| Right-drag | Pan camera |
+| Scroll | Zoom |
+| `↑ ↓ ← →` | Move camera forward / back / strafe |
+| `Page Up / Page Down` | Move camera up / down |
+| `Space` | Play / pause |
+| `R` | Reset to first frame |
+| Follow / Free buttons | Toggle follow-cam (front view of cab) |
+
+To test with a custom spawn region:
+
+```bash
+python simulate_3d.py \
+    --env_x_range 0 100 \
+    --env_y_range -30 30 \
+    --test_x_cab_range 40 90 \
+    --test_y_cab_range -25 25
+```
+
+To change the number of trajectories displayed:
+
+```bash
+python simulate_3d.py --num_trajectories 10
+```
+
 # References
 
 - Nguyen, D., & Widrow, B. (1989). *The truck backer-upper: an example of self-learning in neural networks*. In International 1989 Joint Conference on Neural Networks (pp. 357–363, vol. 2). [https://doi.org/10.1109/IJCNN.1989.118723](https://doi.org/10.1109/IJCNN.1989.118723)
