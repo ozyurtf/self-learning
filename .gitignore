@@ -12,3 +12,4 @@ simulation_3d.html
 three.min.js
 OrbitControls.js
 videos
+*.pyc

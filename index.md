@@ -4,7 +4,7 @@ title: Self-Learning
 
 # Self-Learning
 
-**Note**: I developed this project as part of a challenge project suggested by Dr. Alfredo Canziani in my Deep Learning course at New York University. I took the initial code that sets up a simulated environment from [here](https://github.com/Atcold/NYU-DLSP20/blob/master/14-truck_backer_upper.ipynb). Inspiring by the Truck Backer Upper paper referenced at the bottom section, I designed and developed the training process of two models: one that is responsible for imagining what the state of the agent would look like in the next step if it takes a specific action, and another model for determining which action should be taken in the next step to reach the target. I also integrated a curriculum learning process for both models to ensure that the agent starts learning from simple tasks first, before jumping to more difficult tasks. At the end of the process, the agent learned to plan and take the right sequence of actions to reach the target point on its own without any supervision or data collection, even when it was randomly initialized outside the training zone. The training process, the agent's behavior before and after the training, and the instructions for how to run the code are explained below. I also created the 3D simulation of the truck and environment and you can see the video below.
+**Note**: I developed this project as part of a challenge project suggested by Dr. Alfredo Canziani in my Deep Learning course at New York University. I took the initial code that sets up a simulated environment from [here](https://github.com/Atcold/NYU-DLSP20/blob/master/14-truck_backer_upper.ipynb). Inspiring by the Truck Backer Upper paper referenced at the bottom section, I designed and developed the training process of two models: one that is responsible for imagining what the state of the agent would look like in the next step if it takes a specific action, and another model for determining which action should be taken in the next step to reach the target. I also integrated a curriculum learning process for both models to ensure that the agent starts learning from simple tasks first, before jumping to more difficult tasks. At the end of the process, the agent learned to plan and take the right sequence of actions to reach the target point on its own without any supervision or data collection, even when it was randomly initialized outside the training zone. The training process, the agent's behavior before and after the training, and the instructions for how to run the code are explained below. I also created the 3D simulation of the truck and environment and you can see the video below. In the video, you can see the performance of the controller model before the training process in ghost (red) trucks.
 
 
 ## Truck Kinematics
@@ -23,7 +23,7 @@ title: Self-Learning
 
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%">
 <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"
-  src="https://www.youtube.com/embed/pzDoJCvebyc?si=7p2tM6pdaRrGfdXb"
+  src="https://www.youtube.com/embed/euWmj4p814I?si=mJLZyTG1bJzjvBc0"
   title="YouTube video player"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
   referrerpolicy="strict-origin-when-cross-origin"

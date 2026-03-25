@@ -58,7 +58,7 @@ class TruckSim:
             t1 = math.radians(uniform(*test_config["dt_range"])) + t0
             if self.is_valid(x, y, t0, t1): break
             rng_seed += 1
-        phi_t = torch.tensor([math.radians(_random_deg())], dtype=torch.float32)
+        phi_t = torch.tensor([math.radians(generate_random_deg())], dtype=torch.float32)
         frames = []
         while self.is_valid(x, y, t0, t1) and len(frames) < 3000:
             tx, ty = self.trailer_xy(x, y, t1)
@@ -67,13 +67,16 @@ class TruckSim:
                            "tx":round(tx,4),"ty":round(ty,4)})
             state = torch.tensor([x, y, t0, t1], dtype=torch.float32)
             phi_t = controller(torch.cat((phi_t, state)))
+            phi_t = torch.clamp(phi_t, -math.radians(70), math.radians(70))
             x, y, t0, t1 = self.step(x, y, t0, t1, float(phi_t))
         return frames
 
 
-def _random_deg(mean=0, std=35, lo=-70, hi=70):
-    a, b = (lo-mean)/std, (hi-mean)/std
-    return float(stats.truncnorm.rvs(a, b, loc=mean, scale=std, size=1)[0])
+def generate_random_deg(mean=0, std=35, lower_bound=-70, upper_bound=70):
+    a = (lower_bound - mean) / std
+    b = (upper_bound - mean) / std
+    samples = stats.truncnorm.rvs(a, b, loc=mean, scale=std, size=1)
+    return float(samples[0])
 
 
 # ─── HTML Template ────────────────────────────────────────────────────────────
@@ -91,7 +94,7 @@ canvas{display:block}
   position:absolute;top:16px;left:16px;color:#e0e0e0;
   background:rgba(5,5,15,.88);padding:15px 17px;border-radius:13px;
   backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);
-  min-width:240px;user-select:none;
+  min-width:280px;user-select:none;
 }
 #ui h2{font-size:11px;font-weight:700;letter-spacing:1.3px;color:#90caf9;
   margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.1);
@@ -104,7 +107,7 @@ select,input[type=range]{background:rgba(255,255,255,.07);color:#ddd;
 input[type=range]{padding:2px 0}
 button{background:rgba(255,255,255,.09);color:#ddd;
   border:1px solid rgba(255,255,255,.18);border-radius:7px;
-  padding:6px 11px;font-size:11px;cursor:pointer;transition:background .15s;flex:1}
+  padding:6px 8px;font-size:11px;cursor:pointer;transition:background .15s;flex:1;white-space:nowrap}
 button:hover{background:rgba(255,255,255,.18)}
 button.on{background:rgba(80,180,120,.25);border-color:rgba(80,180,120,.45);color:#a5d6a7}
 #stats{font-size:11px;color:#666;margin-top:9px;
@@ -135,6 +138,7 @@ kbd{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(2
   <div class="row">
     <button id="followbtn">Follow cam</button>
     <button id="freebtn" class="on">Free cam</button>
+    <button id="topdownbtn">Top-down</button>
   </div>
   <div id="stats">
     Step&nbsp;<b id="s-step">0</b> / <b id="s-tot">0</b><br>
@@ -143,6 +147,7 @@ kbd{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(2
   </div>
   <div id="prog"><div id="pb"></div></div>
 </div>
+<button id="toggleui" style="position:fixed;top:16px;right:16px;background:rgba(5,5,15,.88);color:#90caf9;border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:7px 13px;font-size:11px;font-weight:600;cursor:pointer;backdrop-filter:blur(14px);letter-spacing:.5px;z-index:999">Hide Legend</button>
 <div id="hint">
   Left-drag: orbit &nbsp;|&nbsp; Right-drag: pan &nbsp;|&nbsp; Scroll: zoom<br>
   <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> move camera &nbsp;|&nbsp; <kbd>PgUp</kbd><kbd>PgDn</kbd> up/down &nbsp;|&nbsp; <kbd>Space</kbd> play/pause &nbsp;|&nbsp; <kbd>R</kbd> reset view
@@ -250,7 +255,7 @@ fill.position.set(-60,40,-60); scene.add(fill);
 
 
 
-// ── Training Zone ─────────────────────────────────────────────────────────
+// ── Training Region ───────────────────────────────────────────────────────
 (function(){
   const tx1=TRAIN_ZONE[0]*S, tx2=TRAIN_ZONE[1]*S;
   const tz1=-TRAIN_ZONE[3]*S, tz2=-TRAIN_ZONE[2]*S; // y→z inversion
@@ -270,7 +275,7 @@ fill.position.set(-60,40,-60); scene.add(fill);
   ln.computeLineDistances();
   scene.add(ln);
 
-  // "Training Zone" ground label
+  // "Training Region" ground label
   const cw=512,ch=96;
   const can=document.createElement('canvas');
   can.width=cw; can.height=ch;
@@ -280,9 +285,9 @@ fill.position.set(-60,40,-60); scene.add(fill);
   ctx.textAlign='center';
   ctx.strokeStyle='rgba(0,0,0,.75)';
   ctx.lineWidth=8;
-  ctx.strokeText('Training Zone',cw/2,ch*.74);
+  ctx.strokeText('Training Region',cw/2,ch*.74);
   ctx.fillStyle='#FFDD00';
-  ctx.fillText('Training Zone',cw/2,ch*.74);
+  ctx.fillText('Training Region',cw/2,ch*.74);
   const tex=new THREE.CanvasTexture(can);
   const pw=(tx2-tx1)*.65, ph=pw*(ch/cw);
   const pl=new THREE.Mesh(
@@ -290,7 +295,6 @@ fill.position.set(-60,40,-60); scene.add(fill);
     new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,side:THREE.DoubleSide})
   );
   pl.rotation.x=-Math.PI/2;
-  pl.rotation.z=Math.PI;
   pl.position.set((tx1+tx2)/2, Y+.01, (tz1+tz2)/2);
   scene.add(pl);
 })();
@@ -300,7 +304,7 @@ fill.position.set(-60,40,-60); scene.add(fill);
 (function(){
   const yM=new THREE.MeshStandardMaterial({color:0xFFCC00,roughness:1});
   const wM=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
-  const xEnd=ENV_X[1]*S;
+  const xEnd=(ENV_X[1]+40)*S;
   for(let x=S*2;x<xEnd;x+=S*3.5){
     const m=new THREE.Mesh(new THREE.PlaneGeometry(S*2,.1),yM);
     m.rotation.x=-Math.PI/2; m.position.set(x,.005,0); scene.add(m);
@@ -839,16 +843,44 @@ document.getElementById('rstbtn').addEventListener('click',()=>{
   if(follow) initCam(TRAJS[trajIdx][0]);
 });
 document.getElementById('followbtn').addEventListener('click',()=>{
-  follow=true; controls.enabled=false;
+  follow=true; topDown=false; controls.enabled=false;
   document.getElementById('followbtn').classList.add('on');
   document.getElementById('freebtn').classList.remove('on');
+  document.getElementById('topdownbtn').classList.remove('on');
+  camera.up.set(0,1,0);
   initCam(TRAJS[trajIdx][Math.min(frame,TRAJS[trajIdx].length-1)]);
 });
 document.getElementById('freebtn').addEventListener('click',()=>{
-  follow=false; controls.enabled=true;
+  follow=false; topDown=false; controls.enabled=true;
+  camera.up.set(0,1,0);
   document.getElementById('freebtn').classList.add('on');
   document.getElementById('followbtn').classList.remove('on');
+  document.getElementById('topdownbtn').classList.remove('on');
 });
+let topDown=false, topDownH=150;
+function updateTopDownCam(){
+  const tx=cabGroup.position.x, tz=cabGroup.position.z;
+  camera.position.set(tx, topDownH, tz);
+  camera.lookAt(tx, 0, tz);
+  camera.up.set(0,0,-1);
+}
+document.getElementById('topdownbtn').addEventListener('click',()=>{
+  topDown=true; follow=false; controls.enabled=false;
+  document.getElementById('topdownbtn').classList.add('on');
+  document.getElementById('followbtn').classList.remove('on');
+  document.getElementById('freebtn').classList.remove('on');
+  updateTopDownCam();
+});
+// Hide/Show Legend
+(function(){
+  const panel=document.getElementById('ui');
+  const btn=document.getElementById('toggleui');
+  btn.addEventListener('click',()=>{
+    const hidden=panel.style.display==='none';
+    panel.style.display=hidden?'':'none';
+    btn.textContent=hidden?'Hide Legend':'Show Legend';
+  });
+})();
 const spdSlider=document.getElementById('spd');
 spdSlider.addEventListener('input',()=>{
   spd=+spdSlider.value;
@@ -865,6 +897,7 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>{keys[e.code]=false;});
 renderer.domElement.addEventListener('wheel',e=>{
   if(follow) camR=Math.max(8,Math.min(200,camR+e.deltaY*.08));
+  if(topDown) topDownH=Math.max(30,Math.min(800,topDownH+e.deltaY*.5));
 },{passive:true});
 
 // ── Render loop ────────────────────────────────────────────────────────────
@@ -896,7 +929,7 @@ function animate(){
     }
   }
   applyKeyboardCamera(dt);
-  follow ? updateFollowCam() : controls.update();
+  topDown ? updateTopDownCam() : follow ? updateFollowCam() : controls.update();
   renderer.render(scene,camera);
 }
 

@@ -1,4 +1,4 @@
-**Note**: I developed this project as part of a challenge project suggested by Dr. Alfredo Canziani in my Deep Learning course at New York University. I took the initial code that sets up a simulated environment from [here](https://github.com/Atcold/NYU-DLSP20/blob/master/14-truck_backer_upper.ipynb). Inspiring by the Truck Backer Upper paper referenced at the bottom section, I designed and developed the training process of two models: one that is responsible for imagining what the state of the agent would look like in the next step if it takes a specific action, and another model for determining which action should be taken in the next step to reach the target. I also integrated a curriculum learning process for both models to ensure that the agent starts learning from simple tasks first, before jumping to more difficult tasks. At the end of the process, the agent learned to plan and take the right sequence of actions to reach the target point on its own without any supervision or data collection, even when it was randomly initialized outside the training zone. The training process, the agent's behavior before and after the training, and the instructions for how to run the code are explained below. I also created the 3D simulation of the truck and environment and you can see the video below.
+**Note**: I developed this project as part of a challenge project suggested by Dr. Alfredo Canziani in my Deep Learning course at New York University. I took the initial code that sets up a simulated environment from [here](https://github.com/Atcold/NYU-DLSP20/blob/master/14-truck_backer_upper.ipynb). Inspiring by the Truck Backer Upper paper referenced at the bottom section, I designed and developed the training process of two models: one that is responsible for imagining what the state of the agent would look like in the next step if it takes a specific action, and another model for determining which action should be taken in the next step to reach the target. I also integrated a curriculum learning process for both models to ensure that the agent starts learning from simple tasks first, before jumping to more difficult tasks. At the end of the process, the agent learned to plan and take the right sequence of actions to reach the target point on its own without any supervision or data collection, even when it was randomly initialized outside the training zone. The training process, the agent's behavior before and after the training, and the instructions for how to run the code are explained below. I also created the 3D simulation of the truck and environment and you can see the video below. In the video, you can see the performance of the controller model before the training process in ghost (red) trucks.
 
 
 ## Truck Kinematics 
@@ -15,7 +15,7 @@
 
 ## 3D Demo
 
-[![3D Demo](https://img.youtube.com/vi/pzDoJCvebyc/maxresdefault.jpg)](https://www.youtube.com/watch?v=pzDoJCvebyc)
+[![3D Demo](https://img.youtube.com/vi/pzDoJCvebyc/maxresdefault.jpg)](https://www.youtube.com/watch?v=euWmj4p814I)
 
 ## Simulation Before Training 
 
@@ -97,7 +97,7 @@ The 3D interactive viewer generates a self-contained HTML file that opens in you
 First, make sure the conda environment is active (see above). Then run:
 
 ```bash
-python simulate-3d.py
+python simulate_3d.py
 ```
 
 This loads the trained controller (`models/controllers/controller_lesson_10.pth`), simulates 15 trajectories, writes `simulation_3d.html`, and opens it automatically.
@@ -118,7 +118,7 @@ This loads the trained controller (`models/controllers/controller_lesson_10.pth`
 To test with a custom spawn region:
 
 ```bash
-python simulate-3d.py \
+python simulate_3d.py \
     --env_x_range 0 100 \
     --env_y_range -30 30 \
     --test_x_cab_range 40 90 \
@@ -128,7 +128,7 @@ python simulate-3d.py \
 To change the number of trajectories displayed:
 
 ```bash
-python simulate-3d.py --num_trajectories 10
+python simulate_3d.py --num_trajectories 10
 ```
 
 # References
