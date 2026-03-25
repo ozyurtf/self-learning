@@ -15,7 +15,7 @@
 
 ## 3D Demo
 
-[![3D Demo](https://img.youtube.com/vi/euWmj4p814I/maxresdefault.jpg)](https://www.youtube.com/watch?v=euWmj4p814I)
+[![3D Demo](/figures/truck-3d.png)](https://www.youtube.com/watch?v=euWmj4p814I)
 
 ## Simulation Before Training 
 
