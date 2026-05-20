@@ -9,15 +9,15 @@ title: Self-Learning
 
 ## Truck Kinematics
 
-![Truck](figures/truck-kinematics.png)
+![Truck](https://raw.githubusercontent.com/ozyurtf/self-learning/main/figures/truck-kinematics.png)
 
 ## Training Emulator
 
-![Truck](figures/emulator-training.png)
+![Truck](https://raw.githubusercontent.com/ozyurtf/self-learning/main/figures/emulator-training.png)
 
 ## Training Controller
 
-![Truck](figures/controller-training.png)
+![Truck](https://raw.githubusercontent.com/ozyurtf/self-learning/main/figures/controller-training.png)
 
 ## 3D Demo
 
@@ -32,25 +32,25 @@ title: Self-Learning
 
 ## Trajectories
 
-![Trajectory 1](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-1.png)
+![Trajectory 1](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-1.png)
 
-![Trajectory 2](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-2.png)
+![Trajectory 2](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-2.png)
 
-![Trajectory 2](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-3.png)
+![Trajectory 2](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-3.png)
 
-![Trajectory 4](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-4.png)
+![Trajectory 4](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-4.png)
 
-![Trajectory 5](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-5.png)
+![Trajectory 5](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-5.png)
 
-![Trajectory 6](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-6.png)
+![Trajectory 6](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-6.png)
 
-![Trajectory 7](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-7.png)
+![Trajectory 7](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-7.png)
 
-![Trajectory 8](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-8.png)
+![Trajectory 8](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-8.png)
 
-![Trajectory 9](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-9.png)
+![Trajectory 9](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-9.png)
 
-![Trajectory 10](trajectories/lesson-10-2025-06-04_02-09AM/trajectory-10.png)
+![Trajectory 10](https://raw.githubusercontent.com/ozyurtf/self-learning/main/trajectories/lesson-10-2025-06-04_02-09AM/trajectory-10.png)
 
 ## Run the Simulation
 
