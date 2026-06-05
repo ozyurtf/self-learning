@@ -1,11 +1,19 @@
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
 body,
 .wrapper,
 h1, h2, h3, h4, h5, h6,
 p, li, a, td, th, blockquote {
-  font-family: 'Avenir Next', 'Avenir', Montserrat, sans-serif !important;
+  font-family: 'Avenir Next', 'Avenir', 'Nunito Sans', sans-serif !important;
+}
+
+/* Hide the heading anchor-link octicons (they render as tofu/"?" boxes
+   because the forced font has no glyph for them). */
+h1 .anchor, h2 .anchor, h3 .anchor,
+h4 .anchor, h5 .anchor, h6 .anchor,
+.octicon, .octicon-link {
+  display: none !important;
 }
 </style>
 
