@@ -8,12 +8,16 @@ p, li, a, td, th, blockquote {
   font-family: 'Avenir Next', 'Avenir', 'Nunito Sans', sans-serif !important;
 }
 
-/* Hide the heading anchor-link octicons (they render as tofu/"?" boxes
-   because the forced font has no glyph for them). */
-h1 .anchor, h2 .anchor, h3 .anchor,
-h4 .anchor, h5 .anchor, h6 .anchor,
-.octicon, .octicon-link {
+/* Hide the heading anchor-link icons (they render as tofu/hex boxes
+   because the forced font has no glyph for the octicon character). */
+h1 a.anchor, h2 a.anchor, h3 a.anchor,
+h4 a.anchor, h5 a.anchor, h6 a.anchor,
+h1 a[aria-hidden], h2 a[aria-hidden], h3 a[aria-hidden],
+h4 a[aria-hidden], h5 a[aria-hidden], h6 a[aria-hidden],
+.anchor, .octicon, .octicon-link,
+.octicon-link::before, .anchor::before, .anchor::after {
   display: none !important;
+  content: none !important;
 }
 </style>
 
