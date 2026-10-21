@@ -120,7 +120,7 @@ function _clearGhosts(){{
 (function(){{
   const btn = document.createElement('button');
   btn.textContent = 'Hide Ghosts';
-  btn.style.cssText = 'position:absolute;top:55px;right:16px;background:rgba(5,5,15,.88);color:#90caf9;border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:7px 13px;font-size:11px;font-weight:600;cursor:pointer;backdrop-filter:blur(14px);letter-spacing:.5px;';
+  btn.style.cssText = 'position:absolute;top:56px;right:16px;background:rgba(255,255,255,.55);color:#1f2d3a;border:1px solid rgba(255,255,255,.7);box-shadow:0 4px 18px rgba(20,35,50,.18);border-radius:9px;padding:7px 13px;font-size:11px;font-weight:600;cursor:pointer;backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);letter-spacing:.5px;';
   btn.addEventListener('click', () => {{
     _ghostRoot.visible = !_ghostRoot.visible;
     btn.textContent = _ghostRoot.visible ? 'Hide Ghosts' : 'Show Ghosts';

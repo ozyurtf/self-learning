@@ -86,40 +86,44 @@ _HTML = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <title>Truck Backer-Upper — 3D</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&display=swap">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#111;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif}
+body{background:#111;overflow:hidden;font-family:'Avenir Next',Avenir,'Nunito Sans',system-ui,sans-serif}
+button,select,input{font-family:inherit}
 canvas{display:block}
 #ui{
-  position:absolute;top:16px;left:16px;color:#e0e0e0;
-  background:rgba(5,5,15,.88);padding:15px 17px;border-radius:13px;
-  backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);
+  position:absolute;top:16px;left:16px;color:#1f2d3a;
+  background:rgba(255,255,255,.55);padding:15px 17px;border-radius:13px;
+  backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);
+  border:1px solid rgba(255,255,255,.7);box-shadow:0 4px 18px rgba(20,35,50,.18);
   min-width:280px;user-select:none;
 }
-#ui h2{font-size:11px;font-weight:700;letter-spacing:1.3px;color:#90caf9;
-  margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.1);
+#ui h2{font-size:11px;font-weight:700;letter-spacing:1.3px;color:#1f2d3a;
+  margin-bottom:12px;border-bottom:1px solid rgba(31,45,58,.15);
   padding-bottom:7px;text-transform:uppercase}
 .row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-label{font-size:11px;color:#888;min-width:68px}
-select,input[type=range]{background:rgba(255,255,255,.07);color:#ddd;
-  border:1px solid rgba(255,255,255,.14);border-radius:6px;
+label{font-size:11px;color:#4a5a68;min-width:68px}
+select,input[type=range]{background:rgba(255,255,255,.6);color:#1f2d3a;
+  border:1px solid rgba(31,45,58,.18);border-radius:6px;
   padding:4px 8px;font-size:11px;cursor:pointer;flex:1}
 input[type=range]{padding:2px 0}
-button{background:rgba(255,255,255,.09);color:#ddd;
-  border:1px solid rgba(255,255,255,.18);border-radius:7px;
+button{background:rgba(255,255,255,.6);color:#1f2d3a;
+  border:1px solid rgba(31,45,58,.18);border-radius:7px;
   padding:6px 8px;font-size:11px;cursor:pointer;transition:background .15s;flex:1;white-space:nowrap}
-button:hover{background:rgba(255,255,255,.18)}
-button.on{background:rgba(80,180,120,.25);border-color:rgba(80,180,120,.45);color:#a5d6a7}
-#stats{font-size:11px;color:#666;margin-top:9px;
-  border-top:1px solid rgba(255,255,255,.07);padding-top:8px;line-height:1.95}
-#stats b{color:#bbb;font-weight:500}
-#prog{height:3px;background:rgba(255,255,255,.07);border-radius:3px;margin-top:9px;overflow:hidden}
+button:hover{background:rgba(255,255,255,.85)}
+button.on{background:#3e5a72;border-color:#3e5a72;color:#fff}
+#stats{font-size:11px;color:#4a5a68;margin-top:9px;
+  border-top:1px solid rgba(31,45,58,.15);padding-top:8px;line-height:1.95}
+#stats b{color:#1f2d3a;font-weight:500}
+#prog{height:3px;background:rgba(31,45,58,.12);border-radius:3px;margin-top:9px;overflow:hidden}
 #pb{height:100%;background:linear-gradient(90deg,#4fc3f7,#81c784);border-radius:3px;width:0%}
-#hint{position:absolute;bottom:14px;right:14px;color:#444;
-  background:rgba(0,0,0,.6);padding:9px 13px;border-radius:9px;
-  font-size:10px;line-height:2;border:1px solid rgba(255,255,255,.07)}
-kbd{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
-  border-radius:3px;padding:0 5px;font-size:9px;color:#bbb;margin:0 1px}
+#hint{position:absolute;bottom:14px;right:14px;color:#4a5a68;
+  background:rgba(255,255,255,.55);padding:9px 13px;border-radius:9px;
+  backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);
+  font-size:10px;line-height:2;border:1px solid rgba(255,255,255,.7);box-shadow:0 4px 18px rgba(20,35,50,.18)}
+kbd{display:inline-block;background:rgba(255,255,255,.6);border:1px solid rgba(31,45,58,.18);
+  border-radius:3px;padding:0 5px;font-size:9px;color:#1f2d3a;margin:0 1px}
 </style>
 </head>
 <body>
@@ -128,16 +132,16 @@ kbd{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(2
   <div class="row"><label>Trajectory</label><select id="sel"></select></div>
   <div class="row">
     <label>Speed</label>
-    <input type="range" id="spd" min="1" max="30" value="6">
-    <span id="spdlbl" style="font-size:11px;color:#777;min-width:26px">6x</span>
+    <input type="range" id="spd" min="1" max="30" value="10">
+    <span id="spdlbl" style="font-size:11px;color:#4a5a68;min-width:26px">10x</span>
   </div>
   <div class="row">
     <button id="playbtn">&#9654; Play</button>
     <button id="rstbtn">&#8635; Reset</button>
   </div>
   <div class="row">
-    <button id="followbtn">Follow cam</button>
-    <button id="freebtn" class="on">Free cam</button>
+    <button id="followbtn" class="on">Follow cam</button>
+    <button id="freebtn">Free cam</button>
     <button id="topdownbtn">Top-down</button>
   </div>
   <div id="stats">
@@ -147,10 +151,10 @@ kbd{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(2
   </div>
   <div id="prog"><div id="pb"></div></div>
 </div>
-<button id="toggleui" style="position:fixed;top:16px;right:16px;background:rgba(5,5,15,.88);color:#90caf9;border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:7px 13px;font-size:11px;font-weight:600;cursor:pointer;backdrop-filter:blur(14px);letter-spacing:.5px;z-index:999">Hide Legend</button>
+<button id="toggleui" style="position:fixed;top:16px;right:16px;background:rgba(255,255,255,.55);color:#1f2d3a;border:1px solid rgba(255,255,255,.7);box-shadow:0 4px 18px rgba(20,35,50,.18);border-radius:9px;padding:7px 13px;font-size:11px;font-weight:600;cursor:pointer;backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);letter-spacing:.5px;z-index:999">Hide Legend</button>
 <div id="hint">
   Left-drag: orbit &nbsp;|&nbsp; Right-drag: pan &nbsp;|&nbsp; Scroll: zoom<br>
-  <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> move camera &nbsp;|&nbsp; <kbd>PgUp</kbd><kbd>PgDn</kbd> up/down &nbsp;|&nbsp; <kbd>Space</kbd> play/pause &nbsp;|&nbsp; <kbd>R</kbd> reset view
+  <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> move camera &nbsp;|&nbsp; <kbd>PgUp</kbd><kbd>PgDn</kbd> up/down &nbsp;|&nbsp; <kbd>Space</kbd> play/pause &nbsp;|&nbsp; <kbd>R</kbd> reset view &nbsp;|&nbsp; <kbd>N</kbd><kbd>P</kbd> next/prev trajectory
 </div>
 
 <script src="three.min.js"></script>
@@ -770,7 +774,7 @@ function buildTruck(){
 const {cabGroup, trailerGroup} = buildTruck();
 
 // ── State & Camera ────────────────────────────────────────────────────────
-let trajIdx=0, frame=0, playing=false, follow=false, spd=6;
+let trajIdx=0, frame=0, playing=false, follow=true, spd=10;
 let camPhi=0.28, camR=52;
 const camSmoothTgt = new THREE.Vector3();
 
@@ -825,7 +829,7 @@ function updateFollowCam(){
 const sel=document.getElementById('sel');
 TRAJS.forEach((_,i)=>{
   const o=document.createElement('option');
-  o.value=i; o.textContent=`Trajectory ${i+1}  (${TRAJS[i].length} steps)`;
+  o.value=i; o.textContent=`Trajectory ${i+1}`;
   sel.appendChild(o);
 });
 sel.addEventListener('change',()=>{
@@ -892,6 +896,11 @@ addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(e.code==='Space'){e.preventDefault();togglePlay();}
   if(e.code==='KeyR'){frame=0;applyFrame(TRAJS[trajIdx][0]);initCam(TRAJS[trajIdx][0]);}
+  if(e.code==='KeyN'||e.code==='KeyP'){
+    const n=TRAJS.length;
+    sel.value=(trajIdx+(e.code==='KeyN'?1:-1)+n)%n;
+    sel.dispatchEvent(new Event('change'));
+  }
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown'].includes(e.code)) e.preventDefault();
 });
 addEventListener('keyup',e=>{keys[e.code]=false;});
@@ -934,6 +943,7 @@ function animate(){
 }
 
 applyFrame(TRAJS[0][0]);
+controls.enabled=false;
 initCam(TRAJS[0][0]);
 animate();
 </script>
