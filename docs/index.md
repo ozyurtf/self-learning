@@ -39,7 +39,7 @@ h4 a[aria-hidden], h5 a[aria-hidden], h6 a[aria-hidden],
 ## 3D Demo
 
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%">
-<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"
+<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;transform:scale(1.008);transform-origin:right top"
   src="https://www.youtube.com/embed/r5zsh6k_3FI"
   title="YouTube video player"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
