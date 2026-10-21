@@ -120,19 +120,6 @@ python simulate_3d.py
 
 This loads the trained controller (`models/controllers/controller_lesson_10.pth`), simulates 15 trajectories, writes `simulation_3d.html`, and opens it automatically.
 
-**Controls inside the viewer:**
-
-| Input | Action |
-|---|---|
-| Left-drag | Orbit camera |
-| Right-drag | Pan camera |
-| Scroll | Zoom |
-| `↑ ↓ ← →` | Move camera forward / back / strafe |
-| `Page Up / Page Down` | Move camera up / down |
-| `Space` | Play / pause |
-| `R` | Reset to first frame |
-| Follow / Free buttons | Toggle follow-cam (front view of cab) |
-
 To test with a custom spawn region:
 
 ```bash
